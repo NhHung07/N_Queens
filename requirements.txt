@@ -1,0 +1,8 @@
+# SAT Solver & Constraint Programming (CP-SAT)
+python-sat>=1.9.dev15
+ortools>=9.15
+
+# Commercial MIP & CP Solvers
+gurobipy>=11.0.0
+docplex>=2.25.0
+cplex>=22.1.0

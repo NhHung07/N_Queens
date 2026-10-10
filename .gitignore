@@ -1,0 +1,24 @@
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+.venv/
+env/
+venv/
+
+# Logs & Temporary Data
+*.log
+results/
+*.csv
+*.cnf
+.DS_Store
+
+# Tool Config
+.antigravity/
+
+# Assignment PDF Documents
+Assignment 1 - requirements.pdf
+sat.pdf
+Mau xay dung bao cao BTL so 1 và BTL so 2.pdf
