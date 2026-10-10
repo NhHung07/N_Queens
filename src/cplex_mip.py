@@ -10,18 +10,11 @@ Mô hình hóa Mixed Integer Programming (MIP):
 """
 
 import time
-
-try:
-    from docplex.mp.model import Model
-except ImportError:
-    Model = None
+from docplex.mp.model import Model
 
 
 def solve_n_queens_cplex_mip(n, time_limit=300, threads=8):
     """Giải bài toán N-Queens bằng IBM ILOG CPLEX (MIP)."""
-    if Model is None:
-        raise ImportError("Thư viện 'docplex' chưa được cài đặt. Vui lòng cài đặt: pip install docplex cplex")
-
     start_time = time.time()
 
     # Khởi tạo mô hình CPLEX MIP
@@ -108,8 +101,5 @@ def print_solution(result):
 
 if __name__ == "__main__":
     n = 8
-    try:
-        result = solve_n_queens_cplex_mip(n)
-        print_solution(result)
-    except ImportError as e:
-        print(f"[*] {e}")
+    result = solve_n_queens_cplex_mip(n)
+    print_solution(result)

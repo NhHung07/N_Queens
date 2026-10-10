@@ -1,0 +1,178 @@
+# Nghiên cứu Thực nghiệm SAT Encodings và So sánh Đa Mô hình (SAT, CP, MIP) cho Bài toán N-Queens
+
+**Học phần:** Các vấn đề hiện đại trong Khoa học Máy tính (Advanced Topics in Computer Science)  
+**Bài tập lớn số 1:** N-Queens Solver & Logic Puzzle Solving  
+**Tác giả:** **Trần Nhật Hưng**  
+
+---
+
+## 📌 Giới thiệu Đề tài
+
+Bài toán **$N$-Queens (Xếp $N$ quân hậu)** là bài toán kinh điển trong Khoa học Máy tính và Trí tuệ Nhân tạo: *Tìm cách đặt $N$ quân hậu trên bàn cờ kích thước $N \times N$ sao cho không có hai quân hậu nào có thể tấn công lẫn nhau* (nghĩa là không cùng hàng, không cùng cột và không cùng đường chéo).
+
+Dự án này tập trung triển khai và đánh giá thực nghiệm chuyên sâu:
+1. **5 kỹ thuật mã hóa ràng buộc At-Most-One (AMO) trong SAT Solving:**
+   - **Binomial (Pairwise / Cổ điển)**: Đơn giản, $0$ biến phụ, số mệnh đề bùng nổ $O(N^4)$.
+   - **Sequential Counter (Sinz 2005)**: Thanh ghi tích lũy tuyến tính, duy trì Arc-Consistency (GAC).
+   - **Binary (Bitwise)**: Mã hóa bit nhị phân, tối ưu hóa số biến phụ $O(N \log N)$.
+   - **Commander Variable (Klieber & Kwon 2007)**: Phân cấp biến chỉ huy theo nhóm ($g=3$).
+   - **2-Product (Chen 2010)**: Phân bố ma trận phụ 2 chiều $p \times q$, biến phụ $O(N^{1.5})$.
+   - Bộ giải SAT chính được sử dụng: **PySAT Glucose4** (CDCL với cơ chế quản lý mệnh đề học theo chỉ số Literal Block Distance - LBD).
+
+2. **So sánh Đa Mô hình (Cross-Paradigm Benchmark) giữa 3 trường phái giải chính xác:**
+   - **SAT Solving (Logic Mệnh đề):** PySAT Glucose4.
+   - **Constraint Programming (CP):** Google OR-Tools (CP-SAT), IBM ILOG CPLEX (CP Optimizer).
+   - **Mixed Integer Programming (MIP / 0-1 ILP):** Gurobi Optimizer, IBM ILOG CPLEX (MIP).
+
+---
+
+## 📂 Cấu trúc Thư mục Dự án
+
+```text
+N_Queens_2/
+├── README.md                      # Tài liệu hướng dẫn dự án (Tác giả: Trần Nhật Hưng)
+├── requirements.txt               # Danh sách thư viện Python cần thiết
+├── src/                           # Mã nguồn triển khai các giải thuật
+│   ├── binomial.py                # SAT Solver với Binomial (Pairwise) Encoding
+│   ├── sequential.py              # SAT Solver với Sequential Counter Encoding
+│   ├── binary.py                  # SAT Solver với Binary (Bitwise) Encoding
+│   ├── commander.py               # SAT Solver với Commander Variable Encoding
+│   ├── product.py                 # SAT Solver với 2-Product Encoding
+│   ├── sat.py                     # CLI điều phối trung tâm cho SAT Solvers
+│   ├── cpsat.py                   # Constraint Programming với Google OR-Tools CP-SAT
+│   ├── cplex_cp.py                # Constraint Programming với IBM CPLEX CP Optimizer
+│   ├── gurobi.py                  # 0-1 MIP với Gurobi Optimizer
+│   └── cplex_mip.py               # 0-1 MIP với IBM CPLEX MIP
+└── results/                       # Thực nghiệm, Dữ liệu và Trực quan hóa
+    ├── benchmark/                 # Kịch bản tự động hóa đo đạc thực nghiệm
+    │   ├── encoding.py            # Benchmark so sánh 5 phương pháp SAT Encoding
+    │   └── solver.py              # Benchmark so sánh 5 Solvers (SAT, CP, MIP)
+    ├── data/                      # Dữ liệu thực nghiệm dạng CSV
+    │   ├── encoding.csv           # Dữ liệu thực nghiệm Encodings (N=4 đến N=128)
+    │   └── solver.csv             # Dữ liệu thực nghiệm Solvers (N=4 đến N=150)
+    ├── figures/                   # Thư mục lưu trữ biểu đồ xuất bản (Publication figures)
+    └── visualization/             # Jupyter Notebooks phân tích và trực quan hóa
+        ├── encoding.ipynb         # Phân tích chuyên sâu về SAT Encodings
+        └── solver.ipynb           # So sánh đối đầu SAT (Glucose4) vs CP vs MIP
+```
+
+---
+
+## ⚙️ Cài đặt Môi trường (Installation)
+
+### 1. Khởi tạo môi trường ảo Python
+Khuyến nghị sử dụng Python 3.10 trở lên:
+
+```bash
+# Tạo môi trường ảo
+python3 -m venv .venv
+
+# Kích hoạt môi trường ảo
+source .venv/bin/activate  # Trên Linux / macOS
+# .venv\Scripts\activate   # Trên Windows
+```
+
+### 2. Cài đặt các thư viện phụ thuộc
+Cài đặt toàn bộ dependencies qua `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+pip install matplotlib seaborn nbformat pandas
+```
+
+> **Lưu ý về Solvers:**
+> - **PySAT (Glucose4)** và **Google OR-Tools** là thư viện mã nguồn mở, không giới hạn kích thước bài toán.
+> - **Gurobi** và **IBM CPLEX** yêu cầu license (phiên bản miễn phí Academic/Community có giới hạn kích thước biến: Gurobi tối đa 2000 biến ($N \le 44$), CPLEX MIP tối đa 1000 biến ($N \le 31$)). Các script benchmark đã được thiết kế tự động bắt và xử lý ngưỡng giới hạn này an toàn.
+
+---
+
+## 🚀 Hướng dẫn Sử dụng (Usage & Quickstart)
+
+### 1. Giải bài toán N-Queens bằng SAT Solvers (CLI)
+Sử dụng file điều phối `src/sat.py` để giải và in trực quan bàn cờ nghiệm:
+
+```bash
+# Giải bài toán 8-Queens bằng Sequential Counter Encoding (Glucose4)
+python src/sat.py -n 8 -e sequential
+
+# Giải bài toán 12-Queens bằng Binary Encoding
+python src/sat.py -n 12 -e binary
+
+# Giải bài toán bằng Commander Variable Encoding
+python src/sat.py -n 10 -e commander
+```
+
+### 2. Chạy thử nghiệm các Solver khác
+```bash
+# Giải bằng Google OR-Tools CP-SAT (Ràng buộc AllDifferent)
+python src/cpsat.py
+
+# Giải bằng Gurobi MIP (0-1 Linear Programming)
+python src/gurobi.py
+
+# Giải bằng IBM CPLEX CP Optimizer
+python src/cplex_cp.py
+
+# Giải bằng IBM CPLEX MIP
+python src/cplex_mip.py
+```
+
+### 3. Tự động hóa Đo đạc Thực nghiệm (Benchmarks)
+Các script trong `results/benchmark/` tự động chạy thực nghiệm và cập nhật số liệu trực tiếp vào `results/data/`:
+
+```bash
+# Đo đạc 5 phương pháp SAT Encoding từ N=4 đến N=128
+python results/benchmark/encoding.py --n_list 4 8 16 32 64 128
+
+# Đo đạc so sánh 5 Solvers (SAT Glucose4, CP-SAT, CPLEX CP, Gurobi, CPLEX MIP)
+python results/benchmark/solver.py --n_list 4 8 12 16 20 24 28 30 40 50 100 150
+```
+
+### 4. Khám phá Trực quan hóa & Phân tích (Jupyter Notebooks)
+Khởi chạy Jupyter Notebook để xem các phân tích chi tiết, bảng thống kê và biểu đồ độ phân giải cao:
+
+```bash
+jupyter notebook results/visualization/encoding.ipynb
+jupyter notebook results/visualization/solver.ipynb
+```
+
+---
+
+## 📊 Tóm tắt Kết quả Thực nghiệm Chính
+
+### 1. So sánh các Kỹ thuật SAT Encoding (trên Glucose4)
+
+| Kỹ thuật Encoding | Biến phụ ($m$ biến) | Mệnh đề CNF ($m$ biến) | Tổng Mệnh đề N-Queens | Đánh giá Thực nghiệm |
+| :--- | :---: | :---: | :---: | :--- |
+| **Binomial (Pairwise)** | $0$ | $O(m^2)$ | $O(N^4)$ | Nhanh ở $N \le 20$; bùng nổ bộ nhớ khi $N > 64$ ($428.864$ mệnh đề tại $N=64$). |
+| **Sequential Counter** | $O(m)$ | $O(m)$ | $O(N^2)$ | Duy trì Arc-Consistency mạnh mẽ; tốc độ giải ổn định trên toàn dải $N$. |
+| **Binary (Bitwise)** | $O(\log m)$ | $O(m \log m)$ | $O(N^2 \log N)$ | **Tối ưu nhất trên Glucose4 ở $N$ lớn** (tại $N=128$ chỉ mất **$0.20$ giây**). |
+| **Commander Variable** | $O(m/g)$ | $O(m)$ | $O(N^2)$ | Cân bằng tốt giữa số lượng mệnh đề và biến phụ ($g=3$). |
+| **2-Product** | $O(\sqrt{m})$ | $O(m)$ | $O(N^2)$ | Cấu trúc ma trận 2D hiệu quả, số biến phụ tăng chậm ($O(N^{1.5})$). |
+
+### 2. So sánh Đa Mô hình: SAT (Glucose4) vs CP vs MIP
+
+1. **Ở miền kích thước nhỏ và vừa ($N \le 30$):**
+   - **Gurobi (MIP)** giải cực nhanh ở các ma trận nhỏ nhờ cơ chế Presolve và Simplex khởi tạo tốt ($0.001 - 0.004$ giây).
+   - **PySAT (Glucose4)** và **OR-Tools (CP-SAT)** duy trì thời gian giải dưới $0.03$ giây.
+2. **Ở miền kích thước lớn ($N = 40 \to 150$):**
+   - **MIP** bị hạn chế nghiêm ngặt do yêu cầu $N^2$ biến nhị phân: CPLEX MIP vượt ngưỡng 1000 biến tại $N=32$, Gurobi vượt ngưỡng 2000 biến tại $N=45$.
+   - **Google OR-Tools (CP-SAT)** và **PySAT (Glucose4)** thể hiện khả năng mở rộng (scalability) vượt bậc, giải thành công bàn cờ kích thước $N = 150$ mà không gặp rào cản bản quyền.
+   - **CP-SAT** tận dụng tối đa ràng buộc toàn cục `AllDifferent` (chỉ cần $N$ biến nguyên và 3 ràng buộc), đạt thời gian giải tối ưu nhất ở quy mô cực lớn.
+
+---
+
+## 📚 Tài liệu Tham khảo
+
+1. **Sinz, C. (2005).** *Towards an Optimal CNF Encoding of Boolean Cardinality Constraints.* CP 2005, LNCS 3709, pp. 827–831.
+2. **Frisch, A. M., Hnich, B., Kiziltan, Z., Miguel, I., & Walsh, T. (2005).** *Propagation: The Binary Encoding of Non-Binary CSPs.* CP 2005.
+3. **Klieber, W., & Kwon, G. (2007).** *Efficient CNF Encoding for Selecting 1 from N Objects.* 4th Workshop on Constraints in Formal Verification.
+4. **Chen, J. (2010).** *A New SAT Encoding of the At-Most-One Constraint.* Technical Report.
+5. **Audemard, G., & Simon, L. (2009).** *Predicting Learnt Clauses Quality in Modern SAT Solvers (Glucose).* IJCAI 2009, pp. 399–404.
+6. **Régin, J. C. (1994).** *A Filtering Algorithm for Constraints of Difference in CSPs.* AAAI-94, pp. 362–367.
+7. **Biere, A., Heule, M., van Maaren, H., & Walsh, T. (2009).** *Handbook of Satisfiability.* IOS Press.
+
+---
+
+*Hà Nội, 2026 – Trần Nhật Hưng*
+

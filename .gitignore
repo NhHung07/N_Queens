@@ -10,8 +10,8 @@ venv/
 
 # Logs & Temporary Data
 *.log
-results/
 *.csv
+!results/data/*.csv
 *.cnf
 .DS_Store
 

@@ -11,7 +11,7 @@ Mô hình hóa SAT Encoding:
 """
 
 import time
-from pysat.solvers import Minisat22
+from pysat.solvers import Glucose4
 
 
 class VarManager:
@@ -116,15 +116,15 @@ def generate_clauses(n, variables, var_manager):
 
 
 def solve_n_queens(n):
-    """Giải bài toán N-Queens bằng SAT Solver (Minisat22)."""
+    """Giải bài toán N-Queens bằng SAT Solver (Glucose4)."""
     start_time = time.time()
     variables = generate_variables(n)
     var_manager = VarManager(start_id=n * n + 1)
     clauses = generate_clauses(n, variables, var_manager)
     total_vars = var_manager.total_vars
 
-    # Khởi tạo bộ giải Minisat22 và nạp các mệnh đề CNF
-    solver = Minisat22()
+    # Khởi tạo bộ giải Glucose4 và nạp các mệnh đề CNF
+    solver = Glucose4()
     for clause in clauses:
         solver.add_clause(clause)
 

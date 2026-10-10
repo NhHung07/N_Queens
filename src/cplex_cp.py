@@ -9,18 +9,11 @@ Mô hình hóa Constraint Programming (CP):
 """
 
 import time
-
-try:
-    from docplex.cp.model import CpoModel
-except ImportError:
-    CpoModel = None
+from docplex.cp.model import CpoModel
 
 
 def solve_n_queens_cplex_cp(n, time_limit=300, workers=8):
     """Giải bài toán N-Queens bằng IBM ILOG CPLEX CP Optimizer."""
-    if CpoModel is None:
-        raise ImportError("Thư viện 'docplex' chưa được cài đặt. Vui lòng cài đặt: pip install docplex cplex")
-
     start_time = time.time()
 
     # Khởi tạo mô hình CPLEX CP
@@ -100,8 +93,5 @@ def print_solution(result):
 
 if __name__ == "__main__":
     n = 8
-    try:
-        result = solve_n_queens_cplex_cp(n)
-        print_solution(result)
-    except ImportError as e:
-        print(f"[*] {e}")
+    result = solve_n_queens_cplex_cp(n)
+    print_solution(result)

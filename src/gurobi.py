@@ -10,20 +10,12 @@ Mô hình hóa Mixed Integer Programming (MIP):
 """
 
 import time
-
-try:
-    import gurobipy as gp
-    from gurobipy import GRB
-except ImportError:
-    gp = None
-    GRB = None
+import gurobipy as gp
+from gurobipy import GRB
 
 
 def solve_n_queens_gurobi(n, time_limit=300, threads=8):
     """Giải bài toán N-Queens bằng Gurobi Optimizer (MIP)."""
-    if gp is None:
-        raise ImportError("Thư viện 'gurobipy' chưa được cài đặt. Vui lòng cài đặt: pip install gurobipy")
-
     start_time = time.time()
 
     # Khởi tạo mô hình Gurobi
@@ -118,8 +110,5 @@ def print_solution(result):
 
 if __name__ == "__main__":
     n = 8
-    try:
-        result = solve_n_queens_gurobi(n)
-        print_solution(result)
-    except ImportError as e:
-        print(f"[*] {e}")
+    result = solve_n_queens_gurobi(n)
+    print_solution(result)
