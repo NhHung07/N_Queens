@@ -6,3 +6,9 @@ ortools>=9.15
 gurobipy>=11.0.0
 docplex>=2.25.0
 cplex>=22.1.0
+
+# Data Analysis & Visualization
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+nbformat>=5.9.0

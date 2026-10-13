@@ -1,7 +1,6 @@
 # Nghiên cứu Thực nghiệm SAT Encodings và So sánh Đa Mô hình (SAT, CP, MIP) cho Bài toán N-Queens
 
-**Học phần:** Các vấn đề hiện đại trong Khoa học Máy tính (Advanced Topics in Computer Science)  
-**Bài tập lớn số 1:** N-Queens Solver & Logic Puzzle Solving  
+**Học phần:** Các vấn đề hiện đại trong Khoa học Máy tính  
 **Tác giả:** **Trần Nhật Hưng**  
 
 ---
@@ -30,7 +29,7 @@ Dự án này tập trung triển khai và đánh giá thực nghiệm chuyên s
 
 ```text
 N_Queens_2/
-├── README.md                      # Tài liệu hướng dẫn dự án (Tác giả: Trần Nhật Hưng)
+├── README.md                      # Tài liệu hướng dẫn dự án
 ├── requirements.txt               # Danh sách thư viện Python cần thiết
 ├── src/                           # Mã nguồn triển khai các giải thuật
 │   ├── binomial.py                # SAT Solver với Binomial (Pairwise) Encoding
@@ -77,7 +76,6 @@ Cài đặt toàn bộ dependencies qua `requirements.txt`:
 
 ```bash
 pip install -r requirements.txt
-pip install matplotlib seaborn nbformat pandas
 ```
 
 > **Lưu ý về Solvers:**
@@ -160,19 +158,5 @@ jupyter notebook results/visualization/solver.ipynb
    - **Google OR-Tools (CP-SAT)** và **PySAT (Glucose4)** thể hiện khả năng mở rộng (scalability) vượt bậc, giải thành công bàn cờ kích thước $N = 150$ mà không gặp rào cản bản quyền.
    - **CP-SAT** tận dụng tối đa ràng buộc toàn cục `AllDifferent` (chỉ cần $N$ biến nguyên và 3 ràng buộc), đạt thời gian giải tối ưu nhất ở quy mô cực lớn.
 
----
 
-## 📚 Tài liệu Tham khảo
-
-1. **Sinz, C. (2005).** *Towards an Optimal CNF Encoding of Boolean Cardinality Constraints.* CP 2005, LNCS 3709, pp. 827–831.
-2. **Frisch, A. M., Hnich, B., Kiziltan, Z., Miguel, I., & Walsh, T. (2005).** *Propagation: The Binary Encoding of Non-Binary CSPs.* CP 2005.
-3. **Klieber, W., & Kwon, G. (2007).** *Efficient CNF Encoding for Selecting 1 from N Objects.* 4th Workshop on Constraints in Formal Verification.
-4. **Chen, J. (2010).** *A New SAT Encoding of the At-Most-One Constraint.* Technical Report.
-5. **Audemard, G., & Simon, L. (2009).** *Predicting Learnt Clauses Quality in Modern SAT Solvers (Glucose).* IJCAI 2009, pp. 399–404.
-6. **Régin, J. C. (1994).** *A Filtering Algorithm for Constraints of Difference in CSPs.* AAAI-94, pp. 362–367.
-7. **Biere, A., Heule, M., van Maaren, H., & Walsh, T. (2009).** *Handbook of Satisfiability.* IOS Press.
-
----
-
-*Hà Nội, 2026 – Trần Nhật Hưng*
 
