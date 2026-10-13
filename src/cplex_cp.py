@@ -38,7 +38,7 @@ def solve_n_queens_cplex_cp(n, time_limit=300, workers=8):
         params["Workers"] = workers
 
     # Thực thi giải mô hình
-    res = mdl.solve(log_output=False, **params)
+    res = mdl.solve(log_output=None, **params)
     elapsed_time = time.time() - start_time
 
     is_sat = res.is_solution() if res else False

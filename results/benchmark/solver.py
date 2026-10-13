@@ -13,10 +13,10 @@ So sánh 3 trường phái giải quyết bài toán:
    - Gurobi Optimizer (MIP binary formulation)
    - IBM ILOG CPLEX (MIP binary formulation)
 
-Xử lý tự động giới hạn license thương mại:
+Xử lý tự động giới hạn solver / license:
 - Gurobi Community License giới hạn 2000 biến (N <= 44).
-- CPLEX MIP Community/Promotional giới hạn 1000 biến (N <= 31).
-- CPLEX CP Optimizer giới hạn không gian tìm kiếm ở kích thước lớn (N >= 150).
+- IBM CPLEX Optimization Studio: Academic License không giới hạn số biến.
+- CP Optimizer & SAT: Giải theo thuật toán chuyên biệt.
 
 Kết quả được ghi tự động vào: results/data/solver.csv
 """
@@ -207,19 +207,7 @@ def solve_wrapper_gurobi(n, time_limit=120):
 
 
 def solve_wrapper_cplex_mip(n, time_limit=120):
-    """Wrapper cho IBM CPLEX MIP với xử lý size limit."""
-    # CPLEX MIP community size-limited license: tối đa 1000 biến
-    if n * n > 1000:
-        return {
-            "n": n,
-            "solver": "IBM CPLEX (MIP)",
-            "family": "MIP",
-            "variables": n * n,
-            "constraints": 2 * n + 4 * n - 6,
-            "time": -1.0,
-            "sat": False,
-            "status": "LIMIT_EXCEEDED",
-        }
+    """Wrapper cho IBM CPLEX MIP (Academic Full License)."""
     t_start = time.perf_counter()
     try:
         res = solve_n_queens_cplex_mip(n, time_limit=time_limit)
@@ -311,23 +299,7 @@ def run_solver_benchmark(
         for s_key in solvers:
             solve_fn = ALL_SOLVERS[s_key]
 
-            # Kiểm tra nếu solver thương mại đã vượt ngưỡng kích thước -> ghi SKIP luôn
-            if s_key == "mip_cplex" and n > 31:
-                row = {
-                    "n": n,
-                    "solver": "IBM CPLEX (MIP)",
-                    "family": "MIP",
-                    "variables": n * n,
-                    "constraints": 2 * n + 4 * n - 6,
-                    "time": -1.0,
-                    "sat": False,
-                    "status": "LIMIT_EXCEEDED",
-                }
-                results.append(row)
-                pd.DataFrame([row]).to_csv(output_csv, mode="a", header=False, index=False)
-                print(f"{n:5d} | {'IBM CPLEX (MIP)':<22} | {'MIP':<6} | {n*n:8d} | {'N/A':>11} | {'N/A':>10} | {'LIMIT_EXCEEDED':<14}")
-                continue
-
+            # Kiểm tra nếu Gurobi vượt ngưỡng bản quyền học thuật dùng thử (2000 biến)
             if s_key == "mip_gurobi" and n > 44:
                 row = {
                     "n": n,
@@ -342,22 +314,6 @@ def run_solver_benchmark(
                 results.append(row)
                 pd.DataFrame([row]).to_csv(output_csv, mode="a", header=False, index=False)
                 print(f"{n:5d} | {'Gurobi (MIP)':<22} | {'MIP':<6} | {n*n:8d} | {'N/A':>11} | {'N/A':>10} | {'LIMIT_EXCEEDED':<14}")
-                continue
-
-            if s_key == "cp_cplex" and n > 120:
-                row = {
-                    "n": n,
-                    "solver": "IBM CPLEX (CP)",
-                    "family": "CP",
-                    "variables": n,
-                    "constraints": 3,
-                    "time": -1.0,
-                    "sat": False,
-                    "status": "LIMIT_EXCEEDED",
-                }
-                results.append(row)
-                pd.DataFrame([row]).to_csv(output_csv, mode="a", header=False, index=False)
-                print(f"{n:5d} | {'IBM CPLEX (CP)':<22} | {'CP':<6} | {n:8d} | {'3':>11} | {'N/A':>10} | {'LIMIT_EXCEEDED':<14}")
                 continue
 
             # Đo đạc

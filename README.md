@@ -78,9 +78,14 @@ Cài đặt toàn bộ dependencies qua `requirements.txt`:
 pip install -r requirements.txt
 ```
 
-> **Lưu ý về Solvers:**
-> - **PySAT (Glucose4)** và **Google OR-Tools** là thư viện mã nguồn mở, không giới hạn kích thước bài toán.
-> - **Gurobi** và **IBM CPLEX** yêu cầu license (phiên bản miễn phí Academic/Community có giới hạn kích thước biến: Gurobi tối đa 2000 biến ($N \le 44$), CPLEX MIP tối đa 1000 biến ($N \le 31$)). Các script benchmark đã được thiết kế tự động bắt và xử lý ngưỡng giới hạn này an toàn.
+> **Lưu ý về Solvers & Bản quyền:**
+> - **PySAT (Glucose4)** và **Google OR-Tools** là thư viện mã nguồn mở, hoạt động không giới hạn kích thước bài toán.
+> - **IBM CPLEX (MIP & CP Optimizer):** Khi cài đặt bản quyền học thuật đầy đủ (**IBM ILOG CPLEX Optimization Studio**), nâng cấp môi trường ảo thông qua lệnh:
+>   ```bash
+>   docplex config --upgrade <Đường_dẫn_cài_đặt_CPLEX_Studio>
+>   ```
+>   Sau khi nâng cấp, CPLEX sẽ mở khóa toàn bộ sức mạnh, không còn giới hạn 1000 biến nhị phân và giải mượt mà lên tới $N = 200+$!
+> - **Gurobi Optimizer:** Phiên bản mặc định áp dụng giới hạn học thuật không cần chứng chỉ (tối đa 2000 biến, tương ứng $N \le 44$). Script benchmark tự động xử lý ngưỡng này an toàn khi chưa kích hoạt `grbgetkey`.
 
 ---
 
