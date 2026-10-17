@@ -87,8 +87,9 @@ def print_solution(result):
 
     if isinstance(result, dict):
         solution = result.get("solution")
+        n = result.get("n", len(solution) if solution else 0)
         print(f"--- N-Queens {result.get('solver', 'Google OR-Tools (CP-SAT)')} ---")
-        print(f"Kích thước bàn cờ (N): {result.get('n')}")
+        print(f"Kích thước bàn cờ (N): {n}")
         print(f"Trạng thái            : {result.get('status')} ({'SAT' if result.get('sat') else 'UNSAT'})")
         print(f"Số biến               : {result.get('variables')} (Biến nguyên)")
         print(f"Số ràng buộc          : {result.get('constraints')} (Ràng buộc toàn cục AllDifferent)")
@@ -98,19 +99,27 @@ def print_solution(result):
         print(f"Thời gian giải        : {result.get('time'):.4f} giây")
     else:
         solution = result
+        n = len(solution) if solution else 0
 
     if solution is None:
         print("Không tìm thấy lời giải.")
     else:
-        if result.get("n", 0) <= 20:
+        if n <= 20:
             print("Trực quan bàn cờ (Q = Hậu, . = Trống):")
-            for row in solution:
-                print(" ".join("Q" if cell else "." for cell in row))
+            if solution and isinstance(solution[0], list):
+                for row in solution:
+                    print(" ".join("Q" if cell else "." for cell in row))
+            else:
+                for col in solution:
+                    row_str = ["."] * n
+                    if 0 <= col < n:
+                        row_str[col] = "Q"
+                    print(" ".join(row_str))
         else:
-            print(f"(Bàn cờ kích thước N={result.get('n')} quá lớn để hiển thị chi tiết)")
+            print(f"(Bàn cờ kích thước N={n} quá lớn để hiển thị chi tiết)")
 
 
 if __name__ == "__main__":
-    n = 100
+    n = 8
     result = solve_n_queens_cp_sat(n)
     print_solution(result)

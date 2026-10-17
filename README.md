@@ -111,7 +111,7 @@ python src/sat.py -n 10 -e commander
 python src/cpsat.py
 
 # Giải bằng Gurobi MIP (0-1 Linear Programming)
-python src/gurobi.py -n 12
+python src/gurobi.py
 
 # Giải bằng IBM CPLEX CP Optimizer
 python src/cplex_cp.py

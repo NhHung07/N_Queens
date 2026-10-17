@@ -78,7 +78,7 @@ def _solve_clauses(clauses, result_connection):
         result_connection.close()
 
 
-def benchmark_single(n, encoding_name, timeout=100):
+def benchmark_single(n, encoding_name, timeout=120):
     """
     Thực hiện đo đạc chi tiết cho 1 cấu hình (N, encoding, solver).
     Tách biệt thời gian sinh CNF (gen_time) và thời gian giải SAT (solve_time).
@@ -146,7 +146,7 @@ def run_encoding_benchmark(
     output_csv=None,
     repeats=1,
     binomial_max_n=343,
-    timeout=100,
+    timeout=120,
     force_clean=False,
 ):
     """
@@ -281,7 +281,7 @@ def main():
     parser.add_argument("--output", type=str, default=None, help="Đường dẫn file CSV xuất ra")
     parser.add_argument("--repeats", type=int, default=1, help="Số lần chạy lặp lại để lấy trung bình")
     parser.add_argument("--binomial_max_n", type=int, default=343, help="Kích thước N tối đa cho Binomial")
-    parser.add_argument("--timeout", type=int, default=100, help="Giới hạn thời gian (giây) cho mỗi thí nghiệm")
+    parser.add_argument("--timeout", type=int, default=120, help="Giới hạn thời gian (giây) cho mỗi thí nghiệm")
     parser.add_argument("--clean", action="store_true", help="Chạy lại toàn bộ từ đầu, không dùng cache")
     args = parser.parse_args()
 
