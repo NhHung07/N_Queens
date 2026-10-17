@@ -57,7 +57,10 @@ def solve_n_queens_cplex_mip(n, time_limit=300, threads=8):
 
     # Trích xuất ma trận nghiệm dạng bàn cờ 2D
     if is_sat:
-        solution = [[int(sol.get_value(x[i, j]) > 0.5) for j in range(n)] for i in range(n)]
+        if n <= 100:
+            solution = [[int(sol.get_value(x[i, j]) > 0.5) for j in range(n)] for i in range(n)]
+        else:
+            solution = [int(v.name.split('_')[2]) for v, val in sol.iter_var_values() if val > 0.5]
 
     return {
         "solution": solution,

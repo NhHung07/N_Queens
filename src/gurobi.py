@@ -59,7 +59,11 @@ def solve_n_queens_gurobi(n, time_limit=300, threads=8):
 
     # Trích xuất ma trận nghiệm dạng bàn cờ 2D
     if is_sat:
-        solution = [[int(x[i, j].X > 0.5) for j in range(n)] for i in range(n)]
+        vals = model.getAttr("X", x)
+        if n <= 100:
+            solution = [[int(vals[i, j] > 0.5) for j in range(n)] for i in range(n)]
+        else:
+            solution = [next((j for j in range(n) if vals[i, j] > 0.5), -1) for i in range(n)]
 
     status_str = {
         GRB.OPTIMAL: "OPTIMAL",
@@ -109,6 +113,12 @@ def print_solution(result):
 
 
 if __name__ == "__main__":
-    n = 8
-    result = solve_n_queens_gurobi(n)
+    import argparse
+    parser = argparse.ArgumentParser(description="Giải bài toán N-Queens bằng Gurobi Optimizer (MIP)")
+    parser.add_argument("-n", "--n", type=int, default=8, help="Kích thước bàn cờ N x N (mặc định: 8)")
+    parser.add_argument("--time_limit", type=int, default=300, help="Thời gian giới hạn tính bằng giây (mặc định: 300)")
+    parser.add_argument("--threads", type=int, default=8, help="Số luồng CPU (mặc định: 8)")
+    args = parser.parse_args()
+
+    result = solve_n_queens_gurobi(args.n, time_limit=args.time_limit, threads=args.threads)
     print_solution(result)

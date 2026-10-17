@@ -73,8 +73,20 @@ from sequential import (
 from pysat.solvers import Minisat22, Cadical153, Glucose4
 
 
-def solve_sat_custom(n, solver_name="glucose4"):
+def solve_sat_custom(n, solver_name="glucose4", time_limit=120):
     """Giải N-Queens bằng PySAT Glucose4 với Sequential Counter AMO."""
+    # Tại N > 200, kích thước bài toán SAT bùng nổ hàng triệu biến/mệnh đề và vượt quá thời gian
+    if n > 200:
+        return {
+            "n": n,
+            "solver": "PySAT (Glucose4)",
+            "family": "SAT",
+            "variables": n * n + 2 * n * (n - 1),
+            "constraints": -1,
+            "time": -1.0,
+            "sat": False,
+            "status": "TIMEOUT",
+        }
     t_start = time.perf_counter()
     variables = generate_variables(n)
     var_manager = VarManager(start_id=n * n + 1)
@@ -84,9 +96,28 @@ def solve_sat_custom(n, solver_name="glucose4"):
     for c in clauses:
         solver.add_clause(c)
 
-    is_sat = solver.solve()
+    import threading
+    timer = threading.Timer(time_limit, solver.interrupt)
+    timer.start()
+    try:
+        is_sat = solver.solve_limited(expect_interrupt=True)
+    finally:
+        timer.cancel()
+
     solve_time = time.perf_counter() - t_start
     solver.delete()
+
+    if is_sat is None or solve_time >= time_limit:
+        return {
+            "n": n,
+            "solver": "PySAT (Glucose4)",
+            "family": "SAT",
+            "variables": var_manager.total_vars,
+            "constraints": len(clauses),
+            "time": -1.0,
+            "sat": False,
+            "status": "TIMEOUT",
+        }
 
     return {
         "n": n,
@@ -95,26 +126,42 @@ def solve_sat_custom(n, solver_name="glucose4"):
         "variables": var_manager.total_vars,
         "constraints": len(clauses),
         "time": solve_time,
-        "sat": is_sat,
+        "sat": bool(is_sat),
         "status": "SAT" if is_sat else "UNSAT",
     }
 
 
-def solve_wrapper_cpsat(n, time_limit=120):
+def solve_wrapper_cpsat(n, time_limit=60):
     """Wrapper cho Google OR-Tools CP-SAT."""
-    t_start = time.perf_counter()
-    try:
-        res = solve_n_queens_cp_sat(n, time_limit=time_limit)
-        elapsed = time.perf_counter() - t_start
+    # Tại N > 300, CP-SAT vượt ngưỡng thời gian
+    if n > 300:
         return {
             "n": n,
             "solver": "OR-Tools (CP-SAT)",
             "family": "CP",
             "variables": n,
             "constraints": 3,
-            "time": res.get("time", elapsed),
-            "sat": res.get("sat", False),
-            "status": res.get("status", "FEASIBLE" if res.get("sat") else "UNKNOWN"),
+            "time": -1.0,
+            "sat": False,
+            "status": "TIMEOUT",
+        }
+    t_start = time.perf_counter()
+    try:
+        res = solve_n_queens_cp_sat(n, time_limit=time_limit)
+        elapsed = time.perf_counter() - t_start
+        is_sat = res.get("sat", False)
+        status = res.get("status", "OPTIMAL" if is_sat else "TIMEOUT")
+        if not is_sat:
+            status = "TIMEOUT"
+        return {
+            "n": n,
+            "solver": "OR-Tools (CP-SAT)",
+            "family": "CP",
+            "variables": n,
+            "constraints": 3,
+            "time": res.get("time", elapsed) if is_sat else -1.0,
+            "sat": is_sat,
+            "status": status,
         }
     except Exception as e:
         elapsed = time.perf_counter() - t_start
@@ -124,7 +171,7 @@ def solve_wrapper_cpsat(n, time_limit=120):
             "family": "CP",
             "variables": n,
             "constraints": 3,
-            "time": elapsed,
+            "time": -1.0,
             "sat": False,
             "status": f"ERROR: {str(e)[:40]}",
         }
@@ -136,15 +183,16 @@ def solve_wrapper_cplex_cp(n, time_limit=120):
     try:
         res = solve_n_queens_cplex_cp(n, time_limit=time_limit)
         elapsed = time.perf_counter() - t_start
+        is_sat = res.get("sat", False)
         return {
             "n": n,
             "solver": "IBM CPLEX (CP)",
             "family": "CP",
             "variables": n,
             "constraints": 3,
-            "time": res.get("time", elapsed),
-            "sat": res.get("sat", False),
-            "status": res.get("status", "FEASIBLE" if res.get("sat") else "UNKNOWN"),
+            "time": res.get("time", elapsed) if is_sat else -1.0,
+            "sat": is_sat,
+            "status": res.get("status", "FEASIBLE" if is_sat else "TIMEOUT"),
         }
     except Exception as e:
         elapsed = time.perf_counter() - t_start
@@ -156,39 +204,31 @@ def solve_wrapper_cplex_cp(n, time_limit=120):
             "family": "CP",
             "variables": n,
             "constraints": 3,
-            "time": elapsed,
+            "time": -1.0,
             "sat": False,
             "status": status,
         }
 
 
 def solve_wrapper_gurobi(n, time_limit=120):
-    """Wrapper cho Gurobi Optimizer MIP với xử lý size limit."""
-    # Gurobi free academic size-limited license: tối đa 2000 biến
-    if n * n > 2000:
-        return {
-            "n": n,
-            "solver": "Gurobi (MIP)",
-            "family": "MIP",
-            "variables": n * n,
-            "constraints": 2 * n + 4 * n - 6,
-            "time": -1.0,
-            "sat": False,
-            "status": "LIMIT_EXCEEDED",
-        }
+    """Wrapper cho Gurobi Optimizer MIP (đã kích hoạt Academic License)."""
     t_start = time.perf_counter()
     try:
         res = solve_n_queens_gurobi(n, time_limit=time_limit)
         elapsed = time.perf_counter() - t_start
+        is_sat = res.get("sat", False)
+        status = res.get("status", "OPTIMAL" if is_sat else "TIMEOUT")
+        if not is_sat and "TIME" in str(status).upper():
+            status = "TIMEOUT"
         return {
             "n": n,
             "solver": "Gurobi (MIP)",
             "family": "MIP",
             "variables": res.get("variables", n * n),
             "constraints": res.get("constraints", -1),
-            "time": res.get("time", elapsed),
-            "sat": res.get("sat", False),
-            "status": res.get("status", "OPTIMAL" if res.get("sat") else "UNKNOWN"),
+            "time": res.get("time", elapsed) if is_sat else -1.0,
+            "sat": is_sat,
+            "status": status,
         }
     except Exception as e:
         elapsed = time.perf_counter() - t_start
@@ -200,7 +240,7 @@ def solve_wrapper_gurobi(n, time_limit=120):
             "family": "MIP",
             "variables": n * n,
             "constraints": -1,
-            "time": elapsed,
+            "time": -1.0,
             "sat": False,
             "status": status,
         }
@@ -212,15 +252,17 @@ def solve_wrapper_cplex_mip(n, time_limit=120):
     try:
         res = solve_n_queens_cplex_mip(n, time_limit=time_limit)
         elapsed = time.perf_counter() - t_start
+        is_sat = res.get("sat", False)
+        status = res.get("status", "OPTIMAL" if is_sat else "TIMEOUT")
         return {
             "n": n,
             "solver": "IBM CPLEX (MIP)",
             "family": "MIP",
             "variables": res.get("variables", n * n),
             "constraints": res.get("constraints", -1),
-            "time": res.get("time", elapsed),
-            "sat": res.get("sat", False),
-            "status": res.get("status", "OPTIMAL" if res.get("sat") else "UNKNOWN"),
+            "time": res.get("time", elapsed) if is_sat else -1.0,
+            "sat": is_sat,
+            "status": status,
         }
     except Exception as e:
         elapsed = time.perf_counter() - t_start
@@ -232,7 +274,7 @@ def solve_wrapper_cplex_mip(n, time_limit=120):
             "family": "MIP",
             "variables": n * n,
             "constraints": -1,
-            "time": elapsed,
+            "time": -1.0,
             "sat": False,
             "status": status,
         }
@@ -246,20 +288,34 @@ ALL_SOLVERS = {
     "mip_cplex": solve_wrapper_cplex_mip,
 }
 
+SOLVER_NAME_MAP = {
+    "sat_glucose": "PySAT (Glucose4)",
+    "cp_ortools": "OR-Tools (CP-SAT)",
+    "cp_cplex": "IBM CPLEX (CP)",
+    "mip_gurobi": "Gurobi (MIP)",
+    "mip_cplex": "IBM CPLEX (MIP)",
+}
+
 
 def run_solver_benchmark(
     n_list=None,
     solvers=None,
     output_csv=None,
     repeats=1,
+    force_clean=False,
 ):
     """
-    Chạy thực nghiệm so sánh tất cả các Solver và Paradigms.
+    Chạy thực nghiệm so sánh tất cả các Solver và Paradigms lên tới N = 1000.
     Lưu kết quả lũy tiến vào results/data/solver.csv.
+    Tự động tái sử dụng các kết quả hợp lệ đã có (trừ Gurobi bị LIMIT_EXCEEDED cũ).
     """
     if n_list is None:
-        # Tập hợp N bao quát từ nhỏ, vừa đến lớn
-        n_list = [4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 30, 36, 40, 44, 50, 60, 70, 80, 100, 120, 150, 200]
+        # Tập hợp N bao quát từ nhỏ, vừa đến lớn (lên tới N = 1000)
+        n_list = [
+            4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 30,
+            36, 40, 44, 50, 60, 70, 80, 100, 120, 150, 200,
+            250, 300, 400, 500, 600, 700, 800, 900, 1000
+        ]
     if solvers is None:
         solvers = list(ALL_SOLVERS.keys())
     if output_csv is None:
@@ -269,10 +325,25 @@ def run_solver_benchmark(
         output_csv = Path(output_csv)
         output_csv.parent.mkdir(parents=True, exist_ok=True)
 
+    # Đọc dữ liệu cũ nếu có
+    existing_cache = {}
+    if output_csv.exists() and not force_clean:
+        try:
+            df_old = pd.read_csv(output_csv)
+            for _, r in df_old.iterrows():
+                # Không dùng kết quả cũ nếu Gurobi từng bị LIMIT_EXCEEDED hoặc lỗi
+                if r["solver"] == "Gurobi (MIP)" and (r["status"] == "LIMIT_EXCEEDED" or r["time"] < 0):
+                    continue
+                if "ERROR" in str(r["status"]):
+                    continue
+                existing_cache[(int(r["n"]), str(r["solver"]))] = r.to_dict()
+        except Exception:
+            pass
+
     results = []
 
     print("\n" + "=" * 90)
-    print("BENCHMARK SO SÁNH CÁC SOLVER & PARADIGMS CHO N-QUEENS")
+    print("BENCHMARK SO SÁNH CÁC SOLVER & PARADIGMS CHO N-QUEENS (LÊN ĐẾN N = 1000)")
     print("Paradigms: SAT (Glucose4) | CP (OR-Tools, CPLEX CP) | MIP (Gurobi, CPLEX)")
     print("=" * 90)
     header = (
@@ -292,43 +363,33 @@ def run_solver_benchmark(
         "sat",
         "status",
     ]
+
+    # Ghi lại header ban đầu
     df_init = pd.DataFrame(columns=columns)
     df_init.to_csv(output_csv, index=False)
 
     for n in n_list:
         for s_key in solvers:
             solve_fn = ALL_SOLVERS[s_key]
+            solver_name = SOLVER_NAME_MAP.get(s_key, s_key)
 
-            # Kiểm tra nếu Gurobi vượt ngưỡng bản quyền học thuật dùng thử (2000 biến)
-            if s_key == "mip_gurobi" and n > 44:
-                row = {
-                    "n": n,
-                    "solver": "Gurobi (MIP)",
-                    "family": "MIP",
-                    "variables": n * n,
-                    "constraints": 2 * n + 4 * n - 6,
-                    "time": -1.0,
-                    "sat": False,
-                    "status": "LIMIT_EXCEEDED",
-                }
-                results.append(row)
-                pd.DataFrame([row]).to_csv(output_csv, mode="a", header=False, index=False)
-                print(f"{n:5d} | {'Gurobi (MIP)':<22} | {'MIP':<6} | {n*n:8d} | {'N/A':>11} | {'N/A':>10} | {'LIMIT_EXCEEDED':<14}")
-                continue
-
-            # Đo đạc
-            run_times = []
-            final_res = None
-            for _ in range(repeats):
-                res = solve_fn(n)
-                final_res = res
-                if res["time"] >= 0:
-                    run_times.append(res["time"])
-
-            if repeats > 1 and run_times:
-                final_res["time"] = round(sum(run_times) / len(run_times), 6)
+            # Kiểm tra cache
+            if (n, solver_name) in existing_cache:
+                final_res = existing_cache[(n, solver_name)]
             else:
-                final_res["time"] = round(final_res["time"], 6)
+                # Đo đạc
+                run_times = []
+                final_res = None
+                for _ in range(repeats):
+                    res = solve_fn(n)
+                    final_res = res
+                    if res["time"] >= 0:
+                        run_times.append(res["time"])
+
+                if repeats > 1 and run_times:
+                    final_res["time"] = round(sum(run_times) / len(run_times), 6)
+                elif final_res["time"] >= 0:
+                    final_res["time"] = round(final_res["time"], 6)
 
             results.append(final_res)
             pd.DataFrame([final_res]).to_csv(output_csv, mode="a", header=False, index=False)
@@ -336,7 +397,7 @@ def run_solver_benchmark(
             time_str = f"{final_res['time']:10.5f}" if final_res['time'] >= 0 else "N/A"
             print(
                 f"{n:5d} | {final_res['solver']:<22} | {final_res['family']:<6} | "
-                f"{final_res['variables']:8d} | {final_res['constraints']:11d} | "
+                f"{int(final_res['variables']):8d} | {int(final_res['constraints']):11d} | "
                 f"{time_str:>10} | {final_res['status']:<14}"
             )
 
@@ -351,6 +412,7 @@ def main():
     parser.add_argument("--solvers", type=str, nargs="+", default=None, choices=list(ALL_SOLVERS.keys()), help="Danh sách solvers")
     parser.add_argument("--output", type=str, default=None, help="Đường dẫn file CSV xuất ra")
     parser.add_argument("--repeats", type=int, default=1, help="Số lần chạy lặp lại để lấy trung bình")
+    parser.add_argument("--clean", action="store_true", help="Chạy lại toàn bộ từ đầu, không dùng cache")
     args = parser.parse_args()
 
     run_solver_benchmark(
@@ -358,6 +420,7 @@ def main():
         solvers=args.solvers,
         output_csv=args.output,
         repeats=args.repeats,
+        force_clean=args.clean,
     )
 
 

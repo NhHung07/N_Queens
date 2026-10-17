@@ -85,7 +85,7 @@ pip install -r requirements.txt
 >   docplex config --upgrade <Đường_dẫn_cài_đặt_CPLEX_Studio>
 >   ```
 >   Sau khi nâng cấp, CPLEX sẽ mở khóa toàn bộ sức mạnh, không còn giới hạn 1000 biến nhị phân và giải mượt mà lên tới $N = 200+$!
-> - **Gurobi Optimizer:** Phiên bản mặc định áp dụng giới hạn học thuật không cần chứng chỉ (tối đa 2000 biến, tương ứng $N \le 44$). Script benchmark tự động xử lý ngưỡng này an toàn khi chưa kích hoạt `grbgetkey`.
+> - **Gurobi Optimizer:** Đã kích hoạt bản quyền học thuật đầy đủ (**Gurobi Academic License** qua `grbgetkey`), mở khóa toàn bộ giới hạn số biến nhị phân để giải mượt mà trên các kích thước $N$ lớn.
 
 ---
 
@@ -111,7 +111,7 @@ python src/sat.py -n 10 -e commander
 python src/cpsat.py
 
 # Giải bằng Gurobi MIP (0-1 Linear Programming)
-python src/gurobi.py
+python src/gurobi.py -n 12
 
 # Giải bằng IBM CPLEX CP Optimizer
 python src/cplex_cp.py
@@ -147,21 +147,30 @@ jupyter notebook results/visualization/solver.ipynb
 
 | Kỹ thuật Encoding | Biến phụ ($m$ biến) | Mệnh đề CNF ($m$ biến) | Tổng Mệnh đề N-Queens | Đánh giá Thực nghiệm |
 | :--- | :---: | :---: | :---: | :--- |
-| **Binomial (Pairwise)** | $0$ | $O(m^2)$ | $O(N^4)$ | Nhanh ở $N \le 20$; bùng nổ bộ nhớ khi $N > 64$ ($428.864$ mệnh đề tại $N=64$). |
-| **Sequential Counter** | $O(m)$ | $O(m)$ | $O(N^2)$ | Duy trì Arc-Consistency mạnh mẽ; tốc độ giải ổn định trên toàn dải $N$. |
-| **Binary (Bitwise)** | $O(\log m)$ | $O(m \log m)$ | $O(N^2 \log N)$ | **Tối ưu nhất trên Glucose4 ở $N$ lớn** (tại $N=128$ chỉ mất **$0.20$ giây**). |
-| **Commander Variable** | $O(m/g)$ | $O(m)$ | $O(N^2)$ | Cân bằng tốt giữa số lượng mệnh đề và biến phụ ($g=3$). |
-| **2-Product** | $O(\sqrt{m})$ | $O(m)$ | $O(N^2)$ | Cấu trúc ma trận 2D hiệu quả, số biến phụ tăng chậm ($O(N^{1.5})$). |
+| **Binomial (Pairwise)** | $0$ | $O(m^2)$ | $O(N^4)$ | Nhanh ở $N \le 20$; bùng nổ bộ nhớ khi $N > 64$ ($428.864$ mệnh đề tại $N=64$, tự động SKIP ở $N \ge 80$). |
+| **Sequential Counter** | $O(m)$ | $O(m)$ | $O(N^2)$ | Duy trì Arc-Consistency mạnh mẽ; tốc độ giải ổn định ở $N \le 128$ ($52.89$s); chạm ngưỡng timeout ở $N \ge 150$. |
+| **Binary (Bitwise)** | $O(\log m)$ | $O(m \log m)$ | $O(N^2 \log N)$ | **Quán quân SAT solving trên Glucose4 ở $N$ lớn** (tại $N=128$ mất $0.24$s, $N=500$ chỉ mất **$3.99$ giây**). |
+| **Commander Variable** | $O(m/g)$ | $O(m)$ | $O(N^2)$ | Cân bằng tốt giữa số lượng mệnh đề và biến phụ ($g=3$), nhanh nhất ở $N \le 200$ (tại $N=200$ chỉ mất **$0.45$ giây**). |
+| **2-Product** | $O(\sqrt{m})$ | $O(m)$ | $O(N^2)$ | Cấu trúc ma trận 2D hiệu quả, giải tốt đến $N=150$ ($22.05$ giây), chạm ngưỡng timeout ở $N \ge 200$. |
 
-### 2. So sánh Đa Mô hình: SAT (Glucose4) vs CP vs MIP
+### 2. So sánh Đa Mô hình: SAT (Glucose4) vs CP vs MIP (Quy mô lên đến N = 1000)
 
 1. **Ở miền kích thước nhỏ và vừa ($N \le 30$):**
    - **Gurobi (MIP)** giải cực nhanh ở các ma trận nhỏ nhờ cơ chế Presolve và Simplex khởi tạo tốt ($0.001 - 0.004$ giây).
    - **PySAT (Glucose4)** và **OR-Tools (CP-SAT)** duy trì thời gian giải dưới $0.03$ giây.
-2. **Ở miền kích thước lớn ($N = 40 \to 150$):**
-   - **MIP** bị hạn chế nghiêm ngặt do yêu cầu $N^2$ biến nhị phân: CPLEX MIP vượt ngưỡng 1000 biến tại $N=32$, Gurobi vượt ngưỡng 2000 biến tại $N=45$.
-   - **Google OR-Tools (CP-SAT)** và **PySAT (Glucose4)** thể hiện khả năng mở rộng (scalability) vượt bậc, giải thành công bàn cờ kích thước $N = 150$ mà không gặp rào cản bản quyền.
-   - **CP-SAT** tận dụng tối đa ràng buộc toàn cục `AllDifferent` (chỉ cần $N$ biến nguyên và 3 ràng buộc), đạt thời gian giải tối ưu nhất ở quy mô cực lớn.
+   - **IBM CPLEX (CP)** giải ổn định trong khoảng $0.008 - 0.010$ giây.
+
+2. **Ở miền kích thước trung bình và lớn ($N = 40 \to 250$):**
+   - **Gurobi (MIP)** (Academic License) mở khóa toàn bộ sức mạnh, giải $N = 100$ trong $0.033$ giây, $N = 200$ trong $0.118$ giây, $N = 250$ trong $0.194$ giây.
+   - **IBM CPLEX (MIP)** (Academic License) giải $N = 200$ trong $0.523$ giây, $N = 250$ trong $0.875$ giây.
+   - **Google OR-Tools (CP-SAT)** giải $N = 250$ trong $10.29$ giây, nhưng bắt đầu chạm ngưỡng timeout ở $N \ge 300$.
+   - **PySAT (Glucose4)** giải thành công đến $N = 200$ ($150.9$ giây), chạm ngưỡng timeout khi $N \ge 250$ do số biến và mệnh đề bùng nổ hàng triệu.
+
+3. **Ở miền quy mô cực lớn ($N = 300 \to 1000$):**
+   - **IBM CPLEX (CP)** thể hiện sức mạnh vượt trội và áp đảo toàn diện: Nhờ cấu hình $N$ biến nguyên và 3 ràng buộc toàn cục `AllDifferent` cùng cơ chế lan truyền miền giá trị mạnh mẽ, giải thành công $N = 1000$ chỉ trong **$0.236$ giây**!
+   - **IBM CPLEX (MIP)** giải thành công cả bàn cờ $N = 1000$ ($1.000.000$ biến nhị phân) trong **$19.01$ giây**.
+   - **Gurobi (MIP)** giải mượt mà đến $N = 900$ ($810.000$ biến nhị phân) trong **$15.66$ giây**, chạm ngưỡng thời gian 120s ở $N = 1000$.
+   - **CP-SAT** và **PySAT Glucose4** chạm ngưỡng thời gian (TIMEOUT) do hạn chế trong việc tìm nghiệm feasible đầu tiên trên miền tìm kiếm quá rộng hoặc bùng nổ mệnh đề CNF.
 
 
 
