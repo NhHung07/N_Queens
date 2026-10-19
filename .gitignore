@@ -28,6 +28,7 @@ venv/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.abs
 
 # Assignment & Reference PDF Documents
 report/Assignment 1 - requirements.pdf

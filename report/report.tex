@@ -1,195 +1,77 @@
-\documentclass[12pt,a4paper]{report}
+\documentclass[a4paper,fleqn]{cas-sc}
 
 % -----------------------------------------------------------------------------
-% CẤU HÌNH GÓI VÀ BỐ CỤC TRANG
+% CẤU HÌNH GÓI VÀ BỐ CỤC THEO CHUẨN ELSEVIER CAS-SC
 % -----------------------------------------------------------------------------
 \usepackage[utf8]{inputenc}
-\usepackage[T5,T1]{fontenc}
+\usepackage[T1,T5]{fontenc}
 \usepackage[vietnamese,english]{babel}
-\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=2cm]{geometry}
 
-\usepackage{amsmath,amssymb,amsfonts,amsthm}
-\usepackage{booktabs}
-\usepackage{graphicx}
 \usepackage{subcaption}
-\usepackage{multirow}
-\usepackage{array}
 \usepackage{tabularx}
-\usepackage{xcolor}
-\usepackage{url}
-\usepackage{setspace}
 \usepackage{longtable}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{tikz}
-\usetikzlibrary{calc}
-
-% Cấu hình liên kết hyperref
-\usepackage[
-    colorlinks=true,
-    linkcolor=black,
-    citecolor=blue,
-    urlcolor=blue,
-    bookmarks=true,
-    bookmarksnumbered=true,
-    plainpages=false,
-    pdfpagelabels=true
-]{hyperref}
 
 % Định nghĩa môi trường định lý
-\newtheorem{theorem}{Định lý}[chapter]
+\newtheorem{theorem}{Định lý}
 \newtheorem{lemma}[theorem]{Bổ đề}
-\newtheorem{definition}{Định nghĩa}[chapter]
+\newtheorem{definition}{Định nghĩa}
 \newtheorem{proposition}[theorem]{Mệnh đề}
 
-% Đánh số mục theo chuẩn format: Chapter.Section. (ví dụ: 1.1., 1.2.)
-\renewcommand{\thesection}{\thechapter.\arabic{section}.}
-\renewcommand{\thesubsection}{\thechapter.\arabic{section}.\arabic{subsection}.}
-
 % Định dạng hiển thị thuật toán
-\renewcommand{\listalgorithmname}{Danh mục Thuật toán}
 \floatname{algorithm}{Thuật toán}
 
-% Giãn dòng chuẩn học thuật
-\onehalfspacing
-
 \begin{document}
+\let\WriteBookmarks\relax
+\renewcommand{\topfraction}{.9}
+\renewcommand{\bottomfraction}{.8}
+\renewcommand{\textfraction}{.1}
+\renewcommand{\floatpagefraction}{.75}
+
+% Tiêu đề ngắn và tên tác giả ngắn hiển thị ở Header
+\shorttitle{Nghiên cứu Thực nghiệm SAT Encodings cho N-Queens}
+\shortauthors{Trần Nhật Hưng}
+
+% Tiêu đề chính của bài báo
+\title [mode = title]{NGHIÊN CỨU THỰC NGHIỆM CÁC KỸ THUẬT MÃ HÓA SAT VÀ SO SÁNH ĐA MÔ HÌNH (SAT, CP, MIP) CHO BÀI TOÁN N-QUEENS}
+\tnotemark[1]
+\tnotetext[1]{Báo cáo Bài tập lớn số 1 -- Học phần: Các vấn đề hiện đại trong Khoa học Máy tính (Mã học phần: INT3011E 3). Giảng viên hướng dẫn: TS. Tô Văn Khánh.}
+
+% Thông tin tác giả theo chuẩn Elsevier
+\author{Trần Nhật Hưng}
+\cormark[1]
+\ead{24021507@vnu.edu.vn}
+
+\address{Khoa Công nghệ Thông tin, Trường Đại học Công nghệ, Đại học Quốc gia Hà Nội, 144 Xuân Thủy, Cầu Giấy, Hà Nội, Việt Nam}
+
+\cortext[cor1]{Tác giả liên hệ. Sinh viên thực hiện: Trần Nhật Hưng -- MSV: 24021507}
+
+% Tóm tắt (Abstract)
+\begin{abstract}
+Bài toán $N$-Queens (Xếp $N$ quân hậu) là bài toán chuẩn mực (benchmark) kinh điển trong lĩnh vực tối ưu hóa tổ hợp, suy luận tự động và kiểm thử hệ thống hình thức. Khi quy mô bàn cờ mở rộng lên các kích thước lớn ($N \ge 500$, tương ứng với hàng triệu biến Boolean), không gian tìm kiếm bùng nổ cấp số nhân đòi hỏi các phương pháp mô hình hóa và thuật toán giải chính xác phải có hiệu năng vượt bậc. Trong nghiên cứu này, chúng tôi triển khai hai trục nghiên cứu thực nghiệm chuyên sâu: (1) Khảo sát và đối chuẩn 5 kỹ thuật mã hóa ràng buộc At-Most-One (AMO) sang SAT gồm Binomial (Pairwise), Binary (Bitwise), Sequential Counter, Commander Variable ($g=3$), và 2-Product trên bộ giải Glucose4; (2) Mở rộng thiết lập thực nghiệm đối đầu liên trường phái (Cross-Paradigm Benchmark) giữa SAT Solving với hai trường phái tính toán chính xác đối chiếu là Lập trình Ràng buộc (Constraint Programming - CP: Google OR-Tools CP-SAT, IBM ILOG CPLEX CP Optimizer) và Quy hoạch Tuyến tính Nguyên hỗn hợp 0-1 (Mixed Integer Programming - MIP: Gurobi Optimizer, IBM ILOG CPLEX MIP) trên chuỗi 15 mốc kích thước đồng bộ từ $N = 4$ đến $N = 1000$. Kết quả thực nghiệm chỉ ra rằng kỹ thuật mã hóa Binomial bùng nổ $O(N^4)$ mệnh đề dẫn tới tràn bộ nhớ (Out-Of-Memory) tại $N \ge 512$. Ngược lại, kỹ thuật Sequential Counter dù bảo toàn tính nhất quán cung tổng quát (GAC) nhưng gặp phải \textit{Nghịch lý Bộ đếm Tuần tự} (Sequential Counter Paradox) do tạo ra hàng triệu biến phụ làm loãng heuristic phân nhánh VSIDS của bộ giải CDCL, dẫn tới quá thời gian (Timeout). Kỹ thuật Commander Variable và Binary Encoding thể hiện sự cân bằng hoàn hảo, giải thành công toàn bộ 15 mốc kích thước lên tới $N = 1000$ (trong đó Commander giải $N=1000$ chỉ trong $20.10$ giây). Ở trục so sánh đa trường phái, IBM CPLEX CP Optimizer đạt tốc độ áp đảo tuyệt đối ($0.250$ giây cho $N = 1000$) nhờ mô hình hóa $N$ biến nguyên và thuật toán lan truyền Régin cho ràng buộc toàn cục AllDifferent. Đáng chú ý, PySAT Glucose4 Commander hoàn thành mốc $N = 1000$ trong $18.92$ giây, vượt qua cả hai bộ giải thương mại lớn là Gurobi MIP (Timeout) và OR-Tools CP-SAT (Timeout). Toàn bộ mã nguồn, dữ liệu thực nghiệm và kết quả đo đạc được công khai minh bạch tại GitHub: \url{https://github.com/NhHung07/N_Queens.git}.
+\end{abstract}
+
+% Từ khóa (Keywords)
+\begin{keywords}
+N-Queens \sep SAT Solving \sep Mã hóa At-Most-One \sep Constraint Programming \sep Mixed Integer Programming \sep CDCL \sep PySAT
+\end{keywords}
+
+\maketitle
+
 \selectlanguage{vietnamese}
 
-% -----------------------------------------------------------------------------
-% TRANG BÌA (TITLE PAGE) THEO FORMAT CHUẨN BÁO CÁO UET
-% -----------------------------------------------------------------------------
-\hypersetup{pageanchor=false}
-\begin{titlepage}
-% Khung viền bao quanh trang bìa chuẩn mẫu UET
-\begin{tikzpicture}[remember picture, overlay]
-    \draw[line width = 2pt] 
-        ($(current page.north west) + (2.0cm, -1.5cm)$) 
-        rectangle 
-        ($(current page.south east) + (-1.5cm, 1.5cm)$);
-\end{tikzpicture}
-\begin{center}
-    {\large \textbf{ĐẠI HỌC QUỐC GIA HÀ NỘI}}\\[0.2cm]
-    {\large \textbf{TRƯỜNG ĐẠI HỌC CÔNG NGHỆ}}\\[1.0cm]
-    
-    \includegraphics[width=3.6cm]{figures/uet_logo.png}\\[1.2cm]
-    
-    {\Large \textbf{BÁO CÁO BÀI TẬP LỚN MÔN HỌC}}\\[0.4cm]
-    {\large \textbf{HỌC PHẦN: CÁC VẤN ĐỀ HIỆN ĐẠI TRONG KHOA HỌC MÁY TÍNH}}\\[1.2cm]
-    
-    \rule{\textwidth}{1.2pt}\\[0.5cm]
-    {\LARGE \bfseries NGHIÊN CỨU THỰC NGHIỆM CÁC KỸ THUẬT MÃ HÓA SAT VÀ SO SÁNH ĐA MÔ HÌNH (SAT, CP, MIP) CHO BÀI TOÁN N-QUEENS}\\[0.3cm]
-    \rule{\textwidth}{1.2pt}\\[2.0cm]
-    
-    \begin{tabular}{ll}
-        \textbf{Giảng viên hướng dẫn:} & TS. Tô Văn Khánh \\
-        \textbf{Học phần:}             & INT3011E 3 \\
-        \textbf{Sinh viên thực hiện:}   & Trần Nhật Hưng -- 24021507 \\
-    \end{tabular}
-    
-    \vfill
-    {\large \textbf{HÀ NỘI, 2026}}
-\end{center}
-\end{titlepage}
-
-% -----------------------------------------------------------------------------
-% PHẦN ĐẦU (FRONT MATTER)
-% -----------------------------------------------------------------------------
-\hypersetup{pageanchor=true}
-\pagenumbering{roman}
-\setcounter{page}{1}
-
-% Mục lục
-\tableofcontents
-\cleardoublepage
-
-% Danh mục bảng
-\listoftables
-\cleardoublepage
-
-% Danh mục hình vẽ
-\listoffigures
-\cleardoublepage
-
-% Danh mục thuật toán
-\listofalgorithms
-\cleardoublepage
-
-% Danh mục từ viết tắt
-\chapter*{Danh mục Từ viết tắt}
-\addcontentsline{toc}{chapter}{Danh mục Từ viết tắt}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{p{3.2cm} p{11.8cm}}
-\toprule
-\textbf{Từ viết tắt} & \textbf{Ý nghĩa / Tên đầy đủ} \\
-\midrule
-\textbf{ALO} & At-Least-One (Ràng buộc Có ít nhất một) \\
-\textbf{AMO} & At-Most-One (Ràng buộc Có nhiều nhất một) \\
-\textbf{CDCL} & Conflict-Driven Clause Learning (Thuật toán học mệnh đề theo xung đột) \\
-\textbf{CNF} & Conjunctive Normal Form (Dạng chuẩn hội) \\
-\textbf{CP} & Constraint Programming (Lập trình ràng buộc) \\
-\textbf{CSP} & Constraint Satisfaction Problem (Bài toán thỏa mãn ràng buộc) \\
-\textbf{DPLL} & Davis-Putnam-Logemann-Loveland (Thuật toán tìm kiếm SAT kinh điển) \\
-\textbf{GAC} & Generalized Arc Consistency (Tính nhất quán cung tổng quát) \\
-\textbf{ILP} & Integer Linear Programming (Quy hoạch tuyến tính nguyên) \\
-\textbf{LBD} & Literal Block Distance (Khoảng cách khối biến logic) \\
-\textbf{MIP} & Mixed Integer Programming (Quy hoạch tuyến tính nguyên hỗn hợp) \\
-\textbf{OOM} & Out-Of-Memory (Tràn bộ nhớ vật lý) \\
-\textbf{SAT} & Boolean Satisfiability Problem (Bài toán thỏa mãn logic mệnh đề) \\
-\textbf{UNSAT} & Unsatisfiable (Không thỏa mãn) \\
-\textbf{UP} & Unit Propagation (Lan truyền đơn vị) \\
-\textbf{VSIDS} & Variable State Independent Decaying Sum (Heuristic phân nhánh biến) \\
-\textbf{2WL} & Two-Watched Literals (Kỹ thuật theo dõi hai biến đại diện) \\
-\bottomrule
-\end{tabular}
-\end{table}
-\cleardoublepage
-
-% Lời mở đầu
-\chapter*{Lời mở đầu}
-\addcontentsline{toc}{chapter}{Lời mở đầu}
-
-Trong bối cảnh khoa học máy tính và trí tuệ nhân tạo phát triển vượt bậc, các \textit{Phương pháp Hình thức} (Formal Methods) và các mô hình tính toán khai báo chính xác đóng vai trò then chốt trong việc kiểm thử, xác minh hệ thống phần cứng, phần mềm, cũng như giải quyết các bài toán tối ưu hóa tổ hợp quy mô lớn \cite{clarke1996formal}. Trong đó, hai trường phái tính toán nổi bật nhất bao gồm:
-
-\begin{itemize}
-    \item \textbf{Lập trình Ràng buộc (Constraint Programming - CP):} Mô hình hóa bài toán dựa trên các ràng buộc logic hoặc toán học giữa các biến nguyên và sử dụng thuật toán lan truyền miền giá trị toàn cục để cắt tỉa không gian tìm kiếm \cite{barber2003introduction}.
-    \item \textbf{Thỏa mãn Logic Mệnh đề (Boolean Satisfiability - SAT):} Xác định xem một công thức logic Boolean có thể được thỏa mãn hay không. Mặc dù SAT là bài toán NP-đầy đủ đầu tiên được chứng minh trong lý thuyết độ phức tạp \cite{cook1971complexity}, sự trỗi dậy của các bộ giải SAT CDCL hiện đại đã biến SAT thành một công cụ vạn năng giải quyết bài toán thực tế chứa hàng triệu biến trong thời gian mili-giây \cite{marques2008practical,biere2009handbook}.
-\end{itemize}
-
-Bài toán \textbf{$N$-Queens (Xếp $N$ quân hậu)} là bài toán chuẩn mực (benchmark) kinh điển được sử dụng phổ biến nhất để kiểm chuẩn và đánh giá năng lực của các thuật toán tìm kiếm và giải quyết ràng buộc tổ hợp \cite{letavec2002nqueens,rivin1994nqueens}. Việc mở rộng bài toán lên kích thước lớn ($N \ge 500$, tương ứng bàn cờ chứa hàng triệu ô cờ) đặt ra thách thức bùng nổ tổ hợp cực độ đối với các bộ giải.
-
-Trong báo cáo này, chúng tôi tập trung nghiên cứu chuyên sâu về các kỹ thuật mã hóa ràng buộc At-Most-One (AMO) tối ưu trong SAT Solving (gồm Binomial, Sequential Counter, Binary, Commander Variable, và 2-Product), đồng thời mở rộng thiết lập thực nghiệm đối đầu đa mô hình (Cross-Paradigm Benchmark) giữa ba trường phái giải chính xác: SAT Solving (PySAT Glucose4), Lập trình Ràng buộc CP (Google OR-Tools, IBM ILOG CPLEX CP Optimizer), và Quy hoạch Tuyến tính Nguyên MIP (Gurobi Optimizer, IBM ILOG CPLEX MIP) trên chuỗi 15 mốc kích thước từ $N = 4$ đến $N = 1000$.
-
-Báo cáo được tổ chức thành 5 chương chính như sau:
-\begin{itemize}
-    \item \textbf{Chương 1: Giới thiệu} -- Định nghĩa bài toán N-Queens, các quy tắc, ứng dụng thực tế và phân tích các thuật toán giải truyền thống (Quay lui, Nhánh cận) cùng hướng tiếp cận SAT.
-    \item \textbf{Chương 2: Cơ sở lý thuyết} -- Giới thiệu logic mệnh đề, dạng chuẩn hội (CNF), kiến trúc bộ giải SAT CDCL hiện đại, và nguyên lý của 4 kỹ thuật mã hóa AMO tối ưu.
-    \item \textbf{Chương 3: Phương pháp đề xuất và Mô hình hóa} -- Chi tiết hóa các công thức toán học mã hóa bài toán N-Queens trong SAT, CP và MIP.
-    \item \textbf{Chương 4: Thực nghiệm và Đánh giá kết quả} -- Trình bày kết quả đo đạc 15 mốc kích thước, các bảng số liệu, biểu đồ so sánh và phân tích sâu sắc các hiện tượng thực nghiệm (sự bùng nổ mệnh đề Binomial, nghịch lý Sequential Counter, ưu thế của CPLEX CP và MIP).
-    \item \textbf{Chương 5: Kết luận} -- Tổng kết toàn diện các kết quả nghiên cứu và đúc kết khuyến nghị lựa chọn kỹ thuật mã hóa, bộ giải tối ưu.
-\end{itemize}
-
-\cleardoublepage
-
-% -----------------------------------------------------------------------------
-% PHẦN THÂN BÁO CÁO (MAIN BODY)
-% -----------------------------------------------------------------------------
-\pagenumbering{arabic}
-\setcounter{page}{1}
-
 % =============================================================================
-% CHƯƠNG 1: GIỚI THIỆU
+% MỤC 1: GIỚI THIỆU (INTRODUCTION)
 % =============================================================================
-\chapter{Giới thiệu}
-\label{chap:intro}
+\section{Giới thiệu (Introduction)}
+\label{sec:intro}
 
-\section{Định nghĩa bài toán}
-\label{sec:problem_def}
+\subsection{Định nghĩa bài toán}
+\label{subsec:problem_def}
 Bài toán $N$-Queens (Xếp $N$ quân hậu) là bài toán kinh điển trong lĩnh vực trí tuệ nhân tạo, tối ưu hóa tổ hợp và suy luận tự động \cite{letavec2002nqueens}. Được kỳ thủ Max Bezzel đề xuất lần đầu tiên vào năm 1848 cho bàn cờ $8 \times 8$ \cite{bezzel1848} và được Franz Nauck tổng quát hóa cho kích thước $N \times N$ vào năm 1850 \cite{nauck1850}, mục tiêu của bài toán là tìm cách đặt $N$ quân hậu trên bàn cờ kích thước $N \times N$ sao cho không có bất kỳ hai quân hậu nào có thể tấn công lẫn nhau.
 
-\begin{figure}[htbp]
+\begin{figure}[pos=htbp]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
@@ -214,8 +96,8 @@ Hình~\ref{fig:nqueens_illustration} thể hiện sự khác biệt trực quan 
     \item \textbf{Hình~\ref{fig:invalid_queen} (Nghiệm sai):} Tồn tại các quân hậu cùng nằm trên một hàng, cột hoặc đường chéo tấn công trực tiếp lẫn nhau.
 \end{itemize}
 
-\section{Quy tắc của bài toán N-Queens}
-\label{sec:rules}
+\subsection{Quy tắc của bài toán N-Queens}
+\label{subsec:rules}
 Theo luật cờ vua quốc tế, quân hậu là quân cờ có tầm di chuyển linh hoạt và uy lực nhất: nó có thể di chuyển không giới hạn số ô theo chiều ngang (hàng), chiều dọc (cột) và hai hướng chéo (đường chéo chính và đường chéo phụ). Do đó, cấu hình đặt $N$ quân hậu trên bàn cờ $N \times N$ phải thỏa mãn đồng thời bốn điều kiện tiên quyết:
 \begin{enumerate}
     \item Không có hai quân hậu nào cùng nằm trên một hàng (Row constraint).
@@ -226,8 +108,8 @@ Theo luật cờ vua quốc tế, quân hậu là quân cờ có tầm di chuy�
 
 Vì bàn cờ có đúng $N$ hàng, $N$ cột và chúng ta cần đặt đúng $N$ quân hậu, nên theo nguyên lý Dirichlet (nguyên lý lồng chim bồ câu), mỗi hàng và mỗi cột phải chứa \textbf{chính xác một quân hậu} (Exactly-One). Trong khi đó, mỗi đường chéo chứa \textbf{không quá một quân hậu} (At-Most-One).
 
-\section{Ứng dụng thực tiễn của bài toán}
-\label{sec:apps}
+\subsection{Ứng dụng thực tiễn của bài toán}
+\label{subsec:apps}
 Vượt ra khỏi khuôn khổ của một trò chơi giải đố thuần túy, các mô hình toán học của bài toán $N$-Queens có mối liên hệ mật thiết và được ứng dụng rộng rãi trong nhiều bài toán kỹ thuật hiện đại \cite{sosic1994polynomial,erbas1992queens}:
 \begin{itemize}
     \item \textbf{Kiểm định và Thiết kế Vi mạch VLSI (Very Large Scale Integration):} Tối ưu hóa việc định tuyến và phân bố các linh kiện không xung đột trên các lớp bo mạch tích hợp bán dẫn.
@@ -237,9 +119,6 @@ Vượt ra khỏi khuôn khổ của một trò chơi giải đố thuần túy,
     \item \textbf{Bài toán Hoán vị và Người Du lịch (TSP):} Giải quyết các ràng buộc hoán vị tổ hợp trong tối ưu hóa lộ trình logistics \cite{hoffman2013traveling}.
 \end{itemize}
 
-\section{Các công trình liên quan}
-\label{sec:related_works}
-
 \subsection{Các phương pháp giải truyền thống}
 \label{subsec:traditional}
 Các thuật toán đầu tiên tiếp cận bài toán $N$-Queens được xây dựng dựa trên tìm kiếm vét cạn có cắt tỉa:
@@ -247,7 +126,7 @@ Các thuật toán đầu tiên tiếp cận bài toán $N$-Queens được xây
 \paragraph{1. Thuật toán Quay lui (Backtracking):}
 Thuật toán duyệt tuần tự từng hàng (hoặc cột), đặt quân hậu vào vị trí an toàn đầu tiên và gọi đệ quy cho hàng tiếp theo \cite{golomb1965backtrack}. Nếu gặp phải trạng thái không còn vị trí an toàn nào, thuật toán quay lui (backtrack) về hàng trước đó để đổi vị trí. Quy trình được đặc tả chi tiết trong Thuật toán~\ref{alg:backtrack}.
 
-\begin{algorithm}[H]
+\begin{algorithm}[htbp]
 \caption{Giải bài toán $N$-Queens bằng thuật toán Quay lui (Backtracking)}
 \label{alg:backtrack}
 \begin{algorithmic}[1]
@@ -290,7 +169,7 @@ Thuật toán duyệt tuần tự từng hàng (hoặc cột), đặt quân hậ
 \paragraph{2. Thuật toán Nhánh cận (Branch and Bound):}
 Để khắc phục nhược điểm kiểm tra xung đột $O(N)$ trong hàm $\Call{isSafe}{}$ của thuật toán quay lui cổ điển, phương pháp Nhánh cận sử dụng ba mảng đánh dấu trạng thái (lookup tables) có độ phức tạp $O(1)$: $\text{rowLookup}$ kích thước $N$, $\text{slashLookup}$ kích thước $2N-1$ cho đường chéo chính, và $\text{backslashLookup}$ kích thước $2N-1$ cho đường chéo phụ \cite{bitner1975backtrack}. Thuật toán được đặc tả trong Thuật toán~\ref{alg:branch_and_bound}.
 
-\begin{algorithm}[H]
+\begin{algorithm}[htbp]
 \caption{Giải bài toán $N$-Queens bằng thuật toán Nhánh cận (Branch and Bound)}
 \label{alg:branch_and_bound}
 \begin{algorithmic}[1]
@@ -358,19 +237,50 @@ Trong khi ràng buộc ALO chỉ cần một mệnh đề đơn giản, ràng bu
 \end{equation}
 Kỹ thuật này sinh ra $\binom{m}{2} = O(m^2)$ mệnh đề, dẫn tới sự bùng nổ bậc bốn $O(N^4)$ tổng số lượng mệnh đề trên toàn bàn cờ $N$-Queens, trở thành nút thắt cổ chai lớn nhất khi mở rộng quy mô.
 
+\subsection{Danh mục Từ viết tắt}
+\label{subsec:abbreviations}
+Bảng~\ref{tab:abbreviations} liệt kê các thuật ngữ và từ viết tắt chuyên ngành được sử dụng xuyên suốt bài báo.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Danh mục thuật ngữ và từ viết tắt chuyên ngành.}
+\label{tab:abbreviations}
+\begin{tabular}{ll}
+\toprule
+\textbf{Từ viết tắt} & \textbf{Ý nghĩa / Tên đầy đủ} \\
+\midrule
+\textbf{ALO} & At-Least-One (Ràng buộc Có ít nhất một) \\
+\textbf{AMO} & At-Most-One (Ràng buộc Có nhiều nhất một) \\
+\textbf{CDCL} & Conflict-Driven Clause Learning (Thuật toán học mệnh đề theo xung đột) \\
+\textbf{CNF} & Conjunctive Normal Form (Dạng chuẩn hội) \\
+\textbf{CP} & Constraint Programming (Lập trình ràng buộc) \\
+\textbf{CSP} & Constraint Satisfaction Problem (Bài toán thỏa mãn ràng buộc) \\
+\textbf{DPLL} & Davis-Putnam-Logemann-Loveland (Thuật toán tìm kiếm SAT kinh điển) \\
+\textbf{GAC} & Generalized Arc Consistency (Tính nhất quán cung tổng quát) \\
+\textbf{ILP} & Integer Linear Programming (Quy hoạch tuyến tính nguyên) \\
+\textbf{LBD} & Literal Block Distance (Khoảng cách khối biến logic) \\
+\textbf{MIP} & Mixed Integer Programming (Quy hoạch tuyến tính nguyên hỗn hợp) \\
+\textbf{OOM} & Out-Of-Memory (Tràn bộ nhớ vật lý) \\
+\textbf{SAT} & Boolean Satisfiability Problem (Bài toán thỏa mãn logic mệnh đề) \\
+\textbf{UNSAT} & Unsatisfiable (Không thỏa mãn) \\
+\textbf{UP} & Unit Propagation (Lan truyền đơn vị) \\
+\textbf{VSIDS} & Variable State Independent Decaying Sum (Heuristic phân nhánh biến) \\
+\textbf{2WL} & Two-Watched Literals (Kỹ thuật theo dõi hai biến đại diện) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 % =============================================================================
-% CHƯƠNG 2: CƠ SỞ LÝ THUYẾT
+% MỤC 2: CƠ SỞ LÝ THUYẾT (BACKGROUND)
 % =============================================================================
-\chapter{Cơ sở lý thuyết}
-\label{chap:background}
+\section{Cơ sở lý thuyết (Background)}
+\label{sec:background}
 
-\section{Logic mệnh đề}
-\label{sec:prop_logic}
-Logic mệnh đề (Propositional Logic) là nền tảng toán học nghiên cứu các phát biểu có giá trị chân lý xác định: đúng ($\mathbf{True}$ hay $1$) hoặc sai ($\mathbf{False}$ hay $0$) \cite{simon2020reasoning}. Các biến mệnh đề cơ bản được kết hợp với nhau thông qua năm phép toán logic chuẩn mực: Phủ định ($\neg$), Hội ($\land$), Tuyển ($\lor$), Kéo theo ($\to$), và Tương đương ($\leftrightarrow$).
+\subsection{Logic mệnh đề}
+\label{subsec:prop_logic}
+Logic mệnh đề (Propositional Logic) là nền tảng toán học nghiên cứu các phát biểu có giá trị chân lý xác định: đúng ($\mathbf{True}$ hay $1$) hoặc sai ($\mathbf{False}$ hay $0$) \cite{simon2020reasoning}. Các biến mệnh đề cơ bản được kết hợp với nhau thông qua năm phép toán logic chuẩn mực: Phủ định ($\neg$), Hội ($\land$), Tuyển ($\lor$), Kéo theo ($\to$), và Tương đương ($\leftrightarrow$). Bảng chân trị hoàn chỉnh của các phép toán logic được trình bày trong Bảng~\ref{tab:truth_table}.
 
-Bảng chân trị hoàn chỉnh của các phép toán logic được trình bày trong Bảng~\ref{tab:truth_table}.
-
-\begin{table}[htbp]
+\begin{table}[pos=htbp]
 \centering
 \caption{Bảng chân trị của các phép toán logic mệnh đề cơ bản.}
 \label{tab:truth_table}
@@ -386,8 +296,8 @@ $\mathbf{False}$ & $\mathbf{False}$ & $\mathbf{True}$  & $\mathbf{False}$ & $\ma
 \end{tabular}
 \end{table}
 
-\section{Dạng chuẩn hội (Conjunctive Normal Form - CNF)}
-\label{sec:cnf}
+\subsection{Dạng chuẩn hội (Conjunctive Normal Form - CNF)}
+\label{subsec:cnf}
 Mọi bộ giải SAT hiện đại đều yêu cầu công thức đầu vào phải ở Dạng Chuẩn Hội (Conjunctive Normal Form - CNF):
 \begin{itemize}
     \item \textbf{Biến logic (Boolean Variable):} Biến $x \in \{\mathbf{False}, \mathbf{True}\}$.
@@ -396,13 +306,13 @@ Mọi bộ giải SAT hiện đại đều yêu cầu công thức đầu vào p
     \item \textbf{Công thức CNF:} Là hội (phép $\land$) của các mệnh đề: $\Phi = C_1 \land C_2 \land \dots \land C_m$. Công thức $\Phi$ chỉ thỏa mãn khi và chỉ khi \textbf{toàn bộ} các mệnh đề thành phần đều thỏa mãn.
 \end{itemize}
 
-\section{Bài toán SAT và các bộ giải SAT Solver}
-\label{sec:sat_solvers}
-Bài toán Thỏa mãn Logic Mệnh đề (Boolean Satisfiability - SAT) đặt câu hỏi: Cho một công thức CNF $\Phi$, liệu có tồn tại một phép gán giá trị chân lý cho các biến sao cho $\Phi$ nhận giá trị $\mathbf{True}$ hay không?* Nếu tồn tại, công thức là $\text{SAT}$; nếu không, công thức là $\text{UNSAT}$.
+\subsection{Bài toán SAT và các bộ giải SAT Solver}
+\label{subsec:sat_solvers}
+Bài toán Thỏa mãn Logic Mệnh đề (Boolean Satisfiability - SAT) đặt câu hỏi: Cho một công thức CNF $\Phi$, liệu có tồn tại một phép gán giá trị chân lý cho các biến sao cho $\Phi$ nhận giá trị $\mathbf{True}$ hay không? Nếu tồn tại, công thức là $\text{SAT}$; nếu không, công thức là $\text{UNSAT}$.
 
-\begin{figure}[htbp]
+\begin{figure}[pos=htbp]
     \centering
-    \includegraphics[width=0.75\linewidth]{figures/sat_flow.png}
+    \includegraphics[width=0.72\linewidth]{figures/sat_flow.png}
     \caption{Sơ đồ luồng thực thi tổng thể của bộ giải SAT hiện đại (SAT Solver Execution Flow).}
     \label{fig:sat_flow}
 \end{figure}
@@ -418,8 +328,8 @@ Thuật toán hiện đại nhất được áp dụng trong các SAT solver (nh
     \item \textbf{Thu dọn mệnh đề học dựa trên LBD (Literal Block Distance):} Đo đạc chất lượng của mệnh đề học dựa trên số mức quyết định phân biệt xuất hiện trong mệnh đề; các mệnh đề có LBD nhỏ được lưu trữ vĩnh viễn nhằm tối ưu bộ nhớ cache \cite{audemard2009predicting}.
 \end{enumerate}
 
-\section{Mã hóa dựa trên SAT (SAT-based Encoding)}
-\label{sec:sat_encoding_concept}
+\subsection{Mã hóa dựa trên SAT (SAT-based Encoding)}
+\label{subsec:sat_encoding_concept}
 Mã hóa SAT là quá trình chuyển đổi một bài toán thỏa mãn ràng buộc cấp cao (CSP) thành một công thức CNF tương đương. Một kỹ thuật mã hóa tốt phải cân bằng hoàn hảo giữa:
 \begin{itemize}
     \item \textbf{Số lượng mệnh đề CNF:} Giữ số mệnh đề ở mức tuyến tính hoặc gần tuyến tính để tránh cạn kiệt bộ nhớ RAM.
@@ -427,11 +337,11 @@ Mã hóa SAT là quá trình chuyển đổi một bài toán thỏa mãn ràng 
     \item \textbf{Tính bảo toàn Arc-Consistency (GAC):} Khả năng phát hiện và cắt tỉa các giá trị vi phạm trực tiếp thông qua lan truyền đơn vị (Unit Propagation) mà không cần rẽ nhánh sâu.
 \end{itemize}
 
-\section{Các phương pháp mã hóa tối ưu cho ràng buộc At-Most-One (AMO)}
-\label{sec:amo_encodings}
+\subsection{Các phương pháp mã hóa tối ưu cho ràng buộc At-Most-One (AMO)}
+\label{subsec:amo_encodings}
 Xét tập hợp $m$ biến $X = \{x_1, x_2, \dots, x_m\}$, ràng buộc At-Most-One yêu cầu $\sum_{i=1}^m x_i \le 1$. Bốn kỹ thuật mã hóa nâng cao được khảo sát bao gồm:
 
-\subsection{Mã hóa Nhị phân (Binary / Bitwise Encoding)}
+\subsubsection{Mã hóa Nhị phân (Binary / Bitwise Encoding)}
 Ý tưởng của Frisch et al. \cite{frisch2005atmost} là mã hóa vị trí biến nhận giá trị $\mathbf{True}$ bằng một chuỗi bit nhị phân:
 \begin{itemize}
     \item Cần $k = \lceil \log_2 m \rceil$ biến phụ $b_1, b_2, \dots, b_k$.
@@ -444,7 +354,7 @@ Xét tập hợp $m$ biến $X = \{x_1, x_2, \dots, x_m\}$, ràng buộc At-Most
     \item Số mệnh đề: $m \lceil \log_2 m \rceil = O(m \log m)$.
 \end{itemize}
 
-\subsection{Mã hóa Bộ đếm Tuần tự (Sequential Counter Encoding)}
+\subsubsection{Mã hóa Bộ đếm Tuần tự (Sequential Counter Encoding)}
 Được Carsten Sinz đề xuất năm 2005 \cite{sinz2005towards}, kỹ thuật này mô phỏng thanh ghi phần cứng tích lũy số lượng giá trị $\mathbf{True}$:
 \begin{itemize}
     \item Sử dụng $m-1$ biến phụ $s_1, s_2, \dots, s_{m-1}$, trong đó $s_i$ biểu thị trạng thái "đã có ít nhất một biến trong tiền tố $\{x_1, \dots, x_i\}$ nhận giá trị $\mathbf{True}$".
@@ -460,7 +370,7 @@ Xét tập hợp $m$ biến $X = \{x_1, x_2, \dots, x_m\}$, ràng buộc At-Most
     \item Ưu điểm lý thuyết: Duy trì đầy đủ tính nhất quán cung tổng quát (GAC) qua lan truyền đơn vị.
 \end{itemize}
 
-\subsection{Mã hóa Biến chỉ huy (Commander Variable Encoding)}
+\subsubsection{Mã hóa Biến chỉ huy (Commander Variable Encoding)}
 Klieber và Kwon (2007) \cite{klieber2007commander} đề xuất chia tập biến $X$ thành các nhóm con nhỏ kích thước $g$ (thường chọn $g=3$):
 \begin{itemize}
     \item Với mỗi nhóm $G_i$, ta giới thiệu một "biến chỉ huy" $c_i$. Biến $c_i = \mathbf{True}$ khi và chỉ khi có đúng một biến trong nhóm $G_i$ là $\mathbf{True}$.
@@ -470,7 +380,7 @@ Klieber và Kwon (2007) \cite{klieber2007commander} đề xuất chia tập bi�
     \item Số mệnh đề: Tuyến tính $O(m)$.
 \end{itemize}
 
-\subsection{Mã hóa Ma trận 2-Product (Product Encoding)}
+\subsubsection{Mã hóa Ma trận 2-Product (Product Encoding)}
 Jingchao Chen (2010) \cite{chen2010new} đề xuất ánh xạ tập $m$ biến vào một lưới ma trận hai chiều kích thước $p \times q$ sao cho $p \times q \ge m$ (với $p \approx q \approx \lceil \sqrt{m} \rceil$):
 \begin{itemize}
     \item Mỗi biến $x_i$ được gán tọa độ $(u, v)$ duy nhất trên lưới ($1 \le u \le p, 1 \le v \le q$).
@@ -485,31 +395,31 @@ Jingchao Chen (2010) \cite{chen2010new} đề xuất ánh xạ tập $m$ biến 
 \end{itemize}
 
 % =============================================================================
-% CHƯƠNG 3: PHƯƠNG PHÁP ĐỀ XUẤT VÀ MÔ HÌNH HÓA
+% MỤC 3: PHƯƠNG PHÁP ĐỀ XUẤT VÀ MÔ HÌNH HÓA (PROPOSED FORMULATION)
 % =============================================================================
-\chapter{Phương pháp đề xuất và Mô hình hóa}
-\label{chap:methodology}
+\section{Phương pháp đề xuất và Mô hình hóa (SAT-Based Exact Approach \& Multi-Paradigm Formulation)}
+\label{sec:methodology}
 
-\section{Tổng quan về phương pháp tiếp cận}
-\label{sec:method_overview}
+\subsection{Tổng quan về phương pháp tiếp cận}
+\label{subsec:method_overview}
 Để đánh giá toàn diện năng lực giải quyết bài toán $N$-Queens, tôi triển khai hai trục nghiên cứu song song:
 \begin{enumerate}
     \item \textbf{Trục 1 (SAT Solving):} Triển khai và đối chuẩn 5 kỹ thuật mã hóa ràng buộc AMO: Binomial (Pairwise), Binary, Sequential Counter, Commander Variable ($g=3$), và 2-Product trên cùng một SAT solver công nghiệp (PySAT Glucose4).
     \item \textbf{Trục 2 (So sánh Đa Mô hình - Cross-Paradigm):} Đối đầu trực diện giữa cấu hình SAT tối ưu nhất với hai trường phái tính toán chính xác đối chiếu: Lập trình Ràng buộc (Google OR-Tools CP-SAT, IBM ILOG CPLEX CP Optimizer) và Quy hoạch Tuyến tính Nguyên 0-1 (Gurobi MIP, IBM ILOG CPLEX MIP).
 \end{enumerate}
 
-\section{Ứng dụng các phương pháp mã hóa SAT cho N-Queens}
-\label{sec:sat_encodings_nqueens}
+\subsection{Ứng dụng các phương pháp mã hóa SAT cho N-Queens}
+\label{subsec:sat_encodings_nqueens}
 Ma trận bàn cờ $N \times N$ gồm các biến nhị phân $B_{i,j}$ ($0 \le i, j < N$). Các ràng buộc được thiết lập cụ thể:
 
-\subsection{Ràng buộc trên Hàng và Cột}
+\paragraph{Ràng buộc trên Hàng và Cột:}
 Mỗi hàng $i$ và mỗi cột $j$ có đúng một quân hậu:
 \begin{align}
 \text{ALO: } & \bigvee_{j=0}^{N-1} B_{i,j} \quad \forall i \in [0, N-1], \qquad \bigvee_{i=0}^{N-1} B_{i,j} \quad \forall j \in [0, N-1] \\
 \text{AMO: } & \text{AMO}(B_{i,0}, \dots, B_{i,N-1}) \quad \forall i, \qquad \text{AMO}(B_{0,j}, \dots, B_{N-1,j}) \quad \forall j
 \end{align}
 
-\subsection{Ràng buộc trên Đường chéo}
+\paragraph{Ràng buộc trên Đường chéo:}
 Bàn cờ có $2N - 1$ đường chéo chính (chỉ số $k = i - j \in [-(N-1), N-1]$) và $2N - 1$ đường chéo phụ (chỉ số $k = i + j \in [0, 2N-2]$). Vì các đường chéo ở bốn góc chỉ chứa đúng 1 ô (không thể có xung đột), ta chỉ cần áp dụng AMO cho các đường chéo có độ dài $m \ge 2$:
 \begin{align}
 \text{Đường chéo chính: } & \text{AMO}(\{B_{i,j} \mid i - j = k\}), \quad \forall k \in [-(N-2), N-2] \\
@@ -517,11 +427,11 @@ Bàn cờ có $2N - 1$ đường chéo chính (chỉ số $k = i - j \in [-(N-1)
 \end{align}
 
 \subsection{So sánh Độ phức tạp Lý thuyết giữa 5 SAT Encodings}
+\label{subsec:complexity_comparison}
 Bảng~\ref{tab:encoding_complexity} tổng hợp độ phức tạp tiệm cận của 5 phương pháp mã hóa trên một ràng buộc AMO có $m$ biến và trên toàn bộ bài toán $N$-Queens.
 
-\begin{table}[htbp]
+\begin{table}[pos=htbp]
 \centering
-\small
 \caption{So sánh độ phức tạp lý thuyết của 5 phương pháp mã hóa SAT trên bài toán $N$-Queens.}
 \label{tab:encoding_complexity}
 \begin{tabular}{lcccc}
@@ -537,10 +447,10 @@ Bảng~\ref{tab:encoding_complexity} tổng hợp độ phức tạp tiệm cậ
 \end{tabular}
 \end{table}
 
-\section{Mô hình hóa Đa Trường phái (CP và MIP)}
-\label{sec:cp_mip_formulations}
+\subsection{Mô hình hóa Đa Trường phái (CP và MIP)}
+\label{subsec:cp_mip_formulations}
 
-\subsection{Mô hình Lập trình Ràng buộc (Constraint Programming - CP)}
+\subsubsection{Mô hình Lập trình Ràng buộc (Constraint Programming - CP)}
 Trường phái CP mô tả bài toán một cách tự nhiên và cô đọng nhất bằng cách sử dụng $N$ biến nguyên $Q_0, Q_1, \dots, Q_{N-1}$ với miền giá trị $D(Q_i) = \{0, 1, \dots, N-1\}$, trong đó $Q_i$ biểu diễn chỉ số cột của quân hậu tại hàng $i$:
 \begin{align}
 \text{AllDifferent}(Q_0, Q_1, \dots, Q_{N-1}) & \quad \text{(Không trùng cột)} \\
@@ -549,7 +459,7 @@ Trường phái CP mô tả bài toán một cách tự nhiên và cô đọng n
 \end{align}
 Toàn bộ bài toán quy mô $N$ bất kỳ chỉ cần đúng $N$ biến nguyên và đúng 3 ràng buộc toàn cục $\text{AllDifferent}$. Bộ giải IBM ILOG CPLEX CP Optimizer áp dụng thuật toán lan truyền Régin \cite{regin1994filtering} để lọc miền giá trị cực mạnh dựa trên bài toán tìm cặp ghép cực đại trên đồ thị hai phía.
 
-\subsection{Mô hình Quy hoạch Tuyến tính Nguyên 0-1 (MIP / 0-1 ILP)}
+\subsubsection{Mô hình Quy hoạch Tuyến tính Nguyên 0-1 (MIP / 0-1 ILP)}
 Trường phái MIP mô hình hóa bài toán bằng $N^2$ biến nhị phân $x_{i,j} \in \{0, 1\}$ tương tự SAT:
 \begin{align}
 \sum_{j=0}^{N-1} x_{i,j} &= 1 \quad \forall i \in [0, N-1] \quad \text{(Mỗi hàng đúng 1 quân hậu)} \\
@@ -560,25 +470,24 @@ Trường phái MIP mô hình hóa bài toán bằng $N^2$ biến nhị phân $x
 Mô hình chứa $N^2$ biến nhị phân và $6N - 6$ ràng buộc bất đẳng thức tuyến tính, được giải quyết bằng thuật toán Branch-and-Cut kết hợp mặt cắt đa diện và nới lỏng đơn hình (Simplex LP relaxation).
 
 % =============================================================================
-% CHƯƠNG 4: THỰC NGHIỆM VÀ ĐÁNH GIÁ KẾT QUẢ
+% MỤC 4: THỰC NGHIỆM VÀ ĐÁNH GIÁ KẾT QUẢ (COMPUTATIONAL EXPERIMENTS)
 % =============================================================================
-\chapter{Thực nghiệm và Đánh giá kết quả}
-\label{chap:experiments}
+\section{Thực nghiệm và Đánh giá kết quả (Computational Experiments)}
+\label{sec:experiments}
 
-\section{Thiết lập không gian đo đạc và tập dữ liệu}
-\label{sec:dataset_settings}
+\subsection{Thiết lập không gian đo đạc và tập dữ liệu}
+\label{subsec:dataset_settings}
 Để kiểm tra triệt để năng lực mở rộng (scalability) của các thuật toán, không gian thực nghiệm được thiết kế đồng bộ trên chuỗi 15 mốc kích thước:
 \begin{equation}
 N \in \{4, 8, 16, 25, 36, 49, 64, 81, 100, 125, 216, 343, 512, 729, 1000\}
 \end{equation}
-Mốc $N = 1000$ đại diện cho bài toán quy mô cực lớn với $1.000.000$ biến quyết định và xấp xỉ $14.000.000$ mệnh đề CNF.
-Giới hạn thời gian (Timeout) được thiết lập nghiêm ngặt là \textbf{$120.0$ giây} cho mỗi lượt chạy. Nếu bộ giải không tìm được nghiệm trong thời gian này, kết quả được đánh dấu là \texttt{TIMEOUT}. Các mốc sinh mệnh đề vượt ngưỡng 16 GB RAM được gắn nhãn \texttt{SKIPPED\_MEMLIMIT} để bảo vệ hệ thống.
+Mốc $N = 1000$ đại diện cho bài toán quy mô cực lớn với $1.000.000$ biến quyết định và xấp xỉ $14.000.000$ mệnh đề CNF. Giới hạn thời gian (Timeout) được thiết lập nghiêm ngặt là \textbf{$120.0$ giây} cho mỗi lượt chạy. Nếu bộ giải không tìm được nghiệm trong thời gian này, kết quả được đánh dấu là \texttt{TIMEOUT}. Các mốc sinh mệnh đề vượt ngưỡng 16 GB RAM được gắn nhãn \texttt{SKIPPED\_MEMLIMIT} để bảo vệ hệ thống.
 
-\section{Môi trường thực nghiệm}
-\label{sec:exp_env}
+\subsection{Môi trường thực nghiệm}
+\label{subsec:exp_env}
 Thông số chi tiết về phần cứng và phiên bản phần mềm được chuẩn hóa trong Bảng~\ref{tab:env_config}.
 
-\begin{table}[htbp]
+\begin{table}[pos=htbp]
 \centering
 \caption{Cấu hình môi trường phần cứng và phần mềm thực nghiệm.}
 \label{tab:env_config}
@@ -599,12 +508,11 @@ Bộ giải MIP 2 & IBM ILOG CPLEX Optimization Studio v22.1.1 (MIP Academic Lic
 \end{tabularx}
 \end{table}
 
-\section{Đánh giá so sánh giữa 5 kỹ thuật mã hóa SAT}
-\label{sec:sat_enc_results}
-
+\subsection{Đánh giá so sánh giữa 5 kỹ thuật mã hóa SAT}
+\label{subsec:sat_enc_results}
 Bảng~\ref{tab:sat_encodings_runtime} đối chiếu trực tiếp thời gian thực thi (giây) của 5 kỹ thuật mã hóa SAT trên bộ giải Glucose4 qua 15 mốc kích thước bàn cờ. Bảng số liệu chi tiết toàn diện về số biến và số mệnh đề được tổng hợp trong Phụ lục~\ref{app:detailed_data}.
 
-\begin{table}[htbp]
+\begin{table}[pos=htbp]
 \centering
 \caption{Bảng thời gian thực thi (giây) của 5 kỹ thuật mã hóa SAT trên bộ giải Glucose4 qua 15 mốc kích thước ($N \in [4, 1000]$).}
 \label{tab:sat_encodings_runtime}
@@ -631,28 +539,31 @@ $N$ & \textbf{Binomial} & \textbf{Binary} & \textbf{Sequential} & \textbf{Comman
 \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[pos=htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/encoding_clauses.png}
+    \includegraphics[width=0.92\linewidth]{figures/encoding_clauses.png}
     \caption{So sánh số lượng mệnh đề CNF sinh ra giữa 5 kỹ thuật mã hóa SAT qua 15 mốc kích thước ($N \in [4, 1000]$) trên thang tuyến tính (trái) và thang logarit (phải).}
     \label{fig:enc_clauses}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[pos=htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/encoding_aux_vars.png}
+    \includegraphics[width=0.92\linewidth]{figures/encoding_aux_vars.png}
     \caption{So sánh số lượng biến phụ trợ giữa 5 kỹ thuật mã hóa SAT qua 15 mốc kích thước ($N \in [4, 1000]$) trên thang tuyến tính (trái) và thang symlog (phải).}
     \label{fig:enc_aux_vars}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[pos=htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/encoding_total_time.png}
+    \includegraphics[width=0.92\linewidth]{figures/encoding_total_time.png}
     \caption{So sánh tổng thời gian thực thi giữa 5 kỹ thuật mã hóa SAT trên bộ giải Glucose4 qua 15 mốc kích thước ($N \in [4, 1000]$) trên thang tuyến tính (trái) và thang logarit (phải).}
     \label{fig:enc_time}
 \end{figure}
 
-\subsection{Phân tích Hiện tượng Bùng nổ Mệnh đề của Binomial}
+\subsection{Phân tích Hiện tượng Thực nghiệm Chuyên sâu}
+\label{subsec:deep_analysis}
+
+\paragraph{1. Hiện tượng Bùng nổ Mệnh đề của Binomial:}
 Mã hóa Binomial thể hiện tốc độ giải cực nhanh ở các ma trận nhỏ ($N \le 25$) nhờ không sử dụng bất kỳ biến phụ nào ($0$ biến phụ). Tuy nhiên, số lượng mệnh đề tăng theo hàm bậc bốn $O(N^4)$ đã nhanh chóng bộc lộ giới hạn nghiêm trọng:
 \begin{itemize}
     \item Tại $N = 100$, Binomial sinh ra hơn $1.64$ triệu mệnh đề.
@@ -660,28 +571,25 @@ Mã hóa Binomial thể hiện tốc độ giải cực nhanh ở các ma trận
     \item Tại $N \ge 512$, việc khởi tạo công thức đòi hỏi hơn 16 GB RAM, dẫn tới lỗi tràn bộ nhớ vật lý (\texttt{SKIPPED\_MEMLIMIT}).
 \end{itemize}
 
-\subsection{Nghịch lý Bộ đếm Tuần tự (Sequential Counter Paradox)}
-Về mặt lý thuyết, Sequential Counter được coi là mô hình lý tưởng vì giữ số lượng mệnh đề ở mức tuyến tính $O(m)$ đồng thời bảo toàn trọn vẹn Arc-Consistency (GAC) qua lan truyền đơn vị \cite{sinz2005towards}. Thế nhưng, thực nghiệm lại chứng minh đây là kỹ thuật có hiệu năng kém nhất ở quy mô lớn, bị \texttt{TIMEOUT} ngay từ mốc $N = 343$.
-
-Bản chất của nghịch lý này nằm ở sự xung đột nghiêm trọng giữa biến phụ và cơ chế phân nhánh của bộ giải CDCL:
+\paragraph{2. Nghịch lý Bộ đếm Tuần tự (Sequential Counter Paradox):}
+Về mặt lý thuyết, Sequential Counter được coi là mô hình lý tưởng vì giữ số lượng mệnh đề ở mức tuyến tính $O(m)$ đồng thời bảo toàn trọn vẹn Arc-Consistency (GAC) qua lan truyền đơn vị \cite{sinz2005towards}. Thế nhưng, thực nghiệm lại chứng minh đây là kỹ thuật có hiệu năng kém nhất ở quy mô lớn, bị \texttt{TIMEOUT} ngay từ mốc $N = 343$. Bản chất của nghịch lý này nằm ở sự xung đột nghiêm trọng giữa biến phụ và cơ chế phân nhánh của bộ giải CDCL:
 \begin{enumerate}
     \item Tại $N = 1000$, Sequential Counter tạo ra tới $3.994.002$ biến phụ---gấp gần 4 lần số lượng biến quyết định ban đầu ($1.000.000$).
     \item Các mệnh đề truyền thanh ghi $(\neg s_{i-1} \lor s_i)$ tham gia dày đặc vào các chu trình lan truyền đơn vị và đồ thị hàm ý. Heuristic VSIDS liên tục cộng điểm hoạt động cho các biến thanh ghi phụ $s_i$, "đánh lừa" solver chọn các biến phụ này làm biến rẽ nhánh.
     \item Rẽ nhánh trên một biến tích lũy nội bộ $s_i$ có năng lực cắt tỉa không gian kém hơn rất nhiều so với rẽ nhánh trên biến bàn cờ gốc $B_{i,j}$, dẫn tới hiện tượng nghẽn tìm kiếm (search thrashing) và bùng nổ kích thước cây tìm kiếm.
 \end{enumerate}
 
-\subsection{Ưu thế Vượt trội của Binary và Commander Variable}
+\paragraph{3. Ưu thế Vượt trội của Binary và Commander Variable:}
 \begin{itemize}
     \item \textbf{Binary (Bitwise):} Tiết kiệm biến phụ nhất (chỉ $55.888$ biến phụ tại $N = 1000$, chiếm chưa đầy $5.6\%$ số biến gốc). Không gian biến được bảo toàn giúp heuristic VSIDS tập trung hoàn toàn vào biến quyết định bàn cờ, đạt tốc độ dẫn đầu trong phân khúc trung bình $N \in [49, 216]$ (chỉ $0.81$s tại $N=216$) và giải thành công toàn bộ 15 mốc lên đến $N = 1000$ trong $24.66$ giây.
     \item \textbf{Commander Variable ($g=3$):} Đạt điểm cân bằng lý tưởng nhất giữa việc giảm số lượng mệnh đề và kiểm soát số lượng biến phụ. Commander là kỹ thuật SAT nhanh nhất ở quy mô cực đại $N \ge 343$: hoàn thành $N = 343$ trong $2.10$s, $N = 729$ trong $28.45$s (nhanh hơn Binary $64.83$s gấp hơn 2 lần), và giải mốc $N = 1000$ chỉ trong $20.10$ giây.
 \end{itemize}
 
-\section{Thực nghiệm đối đầu Đa Mô hình (SAT vs CP vs MIP)}
-\label{sec:cross_paradigm_results}
-
+\subsection{Thực nghiệm đối đầu Đa Mô hình (SAT vs CP vs MIP)}
+\label{subsec:cross_paradigm_results}
 Bảng~\ref{tab:cross_paradigm_results} trình bày kết quả đối đầu trực diện giữa cấu hình SAT xuất sắc nhất (PySAT Glucose4 Commander) với 4 bộ giải công nghiệp thuộc trường phái CP và MIP qua 15 mốc kích thước.
 
-\begin{table}[htbp]
+\begin{table}[pos=htbp]
 \centering
 \caption{Bảng đối đầu thực nghiệm thời gian thực thi (giây) giữa ba trường phái giải chính xác: SAT (Glucose4 Commander), Lập trình Ràng buộc CP (OR-Tools, CPLEX CP), và Quy hoạch Tuyến tính Nguyên MIP (Gurobi, CPLEX MIP) qua 15 mốc kích thước ($N \in [4, 1000]$).}
 \label{tab:cross_paradigm_results}
@@ -710,39 +618,30 @@ $N$ & \textbf{\shortstack{PySAT\\(SAT)}} & \textbf{\shortstack{OR-Tools\\(CP)}} 
 \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[pos=htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/solver_total_time.png}
+    \includegraphics[width=0.92\linewidth]{figures/solver_total_time.png}
     \caption{So sánh thời gian thực thi đa mô hình (thang tuyến tính bên trái, thang logarit bên phải) giữa SAT (PySAT Glucose4 Commander), Lập trình ràng buộc CP (Google OR-Tools CP-SAT, IBM CPLEX CP), và Quy hoạch nguyên MIP (Gurobi MIP, IBM CPLEX MIP) qua 15 mốc kích thước ($N \in [4, 1000]$).}
     \label{fig:solver_time}
 \end{figure}
 
-\subsection{Thảo luận Chi tiết về Hiệu năng Đa Mô hình}
+\paragraph{Thảo luận Chi tiết về Hiệu năng Đa Mô hình:}
 \begin{enumerate}
-    \item \textbf{IBM CPLEX CP Optimizer:}
-    Nhờ mô hình hóa chỉ với $N$ biến nguyên và 3 ràng buộc $\text{AllDifferent}$, kết hợp thuật toán lọc Régin dựa trên cặp ghép cực đại đồ thị hai phía, CPLEX CP duy trì thời gian giải dưới $0.04$ giây cho mọi $N \le 343$, và giải bàn cờ $N = 1000$ chỉ trong \textbf{$0.250$ giây}. Đây là giải pháp có hiệu năng áp đảo tuyệt đối cho bài toán N-Queens.
-    
-    \item \textbf{IBM CPLEX MIP:}
-    Khi kích hoạt bản quyền học thuật đầy đủ, CPLEX MIP giải quyết thành công mốc $N = 1000$ ($1.000.000$ biến nhị phân) trong \textbf{$19.42$ giây}, chứng minh sức mạnh của thuật toán Presolve và các lát cắt đa diện Branch-and-Cut của IBM.
-    
-    \item \textbf{Gurobi Optimizer (MIP):}
-    Gurobi đạt tốc độ cực nhanh: $N = 512$ ($262.144$ biến) trong $0.838$ giây, $N = 729$ ($531.441$ biến) trong $24.10$ giây. Tuy nhiên, tại $N = 1000$, không gian nhánh cận mở rộng khiến bộ giải chạm ngưỡng \texttt{TIMEOUT} (120s).
-    
-    \item \textbf{PySAT Glucose4 (Commander Variable):}
-    Glucose4 với mã hóa Commander Variable giải thành công toàn bộ 15 mốc lên đến $N = 1000$ trong \textbf{$18.92$ giây} (ở benchmark solver) và $20.10$ giây (ở benchmark encoding). Đáng chú ý, Glucose4 đã vượt qua cả Gurobi lẫn OR-Tools CP-SAT tại mốc $N = 1000$, khẳng định rằng SAT CDCL hiện đại hoàn toàn đủ sức giải quyết bài toán hàng triệu biến Boolean khi được trang bị kỹ thuật mã hóa tối ưu.
-    
-    \item \textbf{Google OR-Tools (CP-SAT):}
-    Đạt hiệu năng rất tốt ở $N \le 343$ ($79.70$ giây), nhưng chạm ngưỡng \texttt{TIMEOUT} tại $N \ge 512$ do kiến trúc phân rã (flattening) các ràng buộc toàn cục thành các mệnh đề giả Boolean nội bộ gặp quá tải tương tự Sequential Counter.
+    \item \textbf{IBM CPLEX CP Optimizer:} Nhờ mô hình hóa chỉ với $N$ biến nguyên và 3 ràng buộc $\text{AllDifferent}$, kết hợp thuật toán lọc Régin dựa trên cặp ghép cực đại đồ thị hai phía, CPLEX CP duy trì thời gian giải dưới $0.04$ giây cho mọi $N \le 343$, và giải bàn cờ $N = 1000$ chỉ trong \textbf{$0.250$ giây}. Đây là giải pháp có hiệu năng áp đảo tuyệt đối cho bài toán N-Queens.
+    \item \textbf{IBM CPLEX MIP:} Khi kích hoạt bản quyền học thuật đầy đủ, CPLEX MIP giải quyết thành công mốc $N = 1000$ ($1.000.000$ biến nhị phân) trong \textbf{$19.42$ giây}, chứng minh sức mạnh của thuật toán Presolve và các lát cắt đa diện Branch-and-Cut của IBM.
+    \item \textbf{Gurobi Optimizer (MIP):} Gurobi đạt tốc độ cực nhanh: $N = 512$ ($262.144$ biến) trong $0.838$ giây, $N = 729$ ($531.441$ biến) trong $24.10$ giây. Tuy nhiên, tại $N = 1000$, không gian nhánh cận mở rộng khiến bộ giải chạm ngưỡng \texttt{TIMEOUT} (120s).
+    \item \textbf{PySAT Glucose4 (Commander Variable):} Glucose4 với mã hóa Commander Variable giải thành công toàn bộ 15 mốc lên đến $N = 1000$ trong \textbf{$18.92$ giây} (ở benchmark solver) và $20.10$ giây (ở benchmark encoding). Đáng chú ý, Glucose4 đã vượt qua cả Gurobi lẫn OR-Tools CP-SAT tại mốc $N = 1000$, khẳng định rằng SAT CDCL hiện đại hoàn toàn đủ sức giải quyết bài toán hàng triệu biến Boolean khi được trang bị kỹ thuật mã hóa tối ưu.
+    \item \textbf{Google OR-Tools (CP-SAT):} Đạt hiệu năng rất tốt ở $N \le 343$ ($79.70$ giây), nhưng chạm ngưỡng \texttt{TIMEOUT} tại $N \ge 512$ do kiến trúc phân rã (flattening) các ràng buộc toàn cục thành các mệnh đề giả Boolean nội bộ gặp quá tải tương tự Sequential Counter.
 \end{enumerate}
 
 % =============================================================================
-% CHƯƠNG 5: KẾT LUẬN
+% MỤC 5: KẾT LUẬN (CONCLUSION)
 % =============================================================================
-\chapter{Kết luận}
-\label{chap:conclusion}
+\section{Kết luận (Conclusion)}
+\label{sec:conclusion}
 
-\section{Đúc kết kết quả nghiên cứu}
-\label{sec:conclusion_summary}
+\subsection{Đúc kết kết quả nghiên cứu}
+\label{subsec:conclusion_summary}
 Báo cáo đã thực hiện một nghiên cứu thực nghiệm và lý thuyết chuyên sâu, toàn diện về bài toán $N$-Queens:
 \begin{enumerate}
     \item Đánh giá chi tiết 5 kỹ thuật mã hóa At-Most-One (AMO) trong SAT: Chỉ ra bản chất hiện tượng bùng nổ mệnh đề bậc bốn của Binomial dẫn tới tràn bộ nhớ RAM ở $N \ge 512$, và làm sáng tỏ \textit{Nghịch lý Sequential Counter} khi sự bùng nổ hàng triệu biến phụ làm loãng heuristic phân nhánh VSIDS của thuật toán CDCL.
@@ -750,109 +649,30 @@ Báo cáo đã thực hiện một nghiên cứu thực nghiệm và lý thuyế
     \item Khảo sát đối chuẩn liên trường phái (Cross-Paradigm Benchmark) giữa SAT, CP và MIP trên chuỗi 15 mốc kích thước đồng bộ lên tới $N = 1000$.
 \end{enumerate}
 
-\section{Khuyến nghị lựa chọn công nghệ giải}
-\label{sec:recommendations}
+\subsection{Khuyến nghị lựa chọn công nghệ giải}
+\label{subsec:recommendations}
 Dựa trên các phân tích định lượng thực nghiệm, chúng tôi đưa ra khuyến nghị lựa chọn công cụ:
 \begin{itemize}
     \item \textbf{Với bài toán thỏa mãn ràng buộc thuần túy quy mô cực đại ($N \ge 500$):} \textbf{Constraint Programming (IBM CPLEX CP Optimizer)} là giải pháp số một với tốc độ phản hồi tính bằng mili-giây ($0.25\text{s}$ cho $N = 1000$).
     \item \textbf{Với bài toán mô hình hóa nhị phân (0-1 Boolean formulation):} \textbf{PySAT Glucose4 (Commander Variable)} và \textbf{IBM CPLEX MIP} là hai đại diện xuất sắc nhất, đủ sức giải quyết bài toán chứa hàng triệu biến trong vòng 20 giây mà không gặp rào cản bộ nhớ.
 \end{itemize}
 
-\section*{Data Availability}
-\addcontentsline{toc}{section}{Data Availability}
-Toàn bộ mã nguồn cài đặt các thuật toán (5 kỹ thuật mã hóa SAT, 4 mô hình đối sánh CP và MIP), các kịch bản đo đạc tự động hóa thực nghiệm (benchmarks), tập dữ liệu kết quả đo đạc chi tiết (dạng CSV) và các biểu đồ phân tích trực quan hóa được công khai tại kho lưu trữ (Repository) của dự án:
-\begin{center}
-    \textbf{GitHub Repository:} \url{https://github.com/NhHung07/N_Queens.git}
-\end{center}
+% -----------------------------------------------------------------------------
+% TÀI LIỆU VÀ DỮ LIỆU THỰC NGHIỆM (DATA AVAILABILITY)
+% -----------------------------------------------------------------------------
+\section*{Data availability}
+Toàn bộ mã nguồn cài đặt các thuật toán (5 kỹ thuật mã hóa SAT, 4 mô hình đối sánh CP và MIP), các kịch bản đo đạc tự động hóa thực nghiệm (benchmarks), tập dữ liệu kết quả đo đạc chi tiết (dạng CSV) và các biểu đồ phân tích trực quan hóa được công khai tại kho lưu trữ GitHub của tác giả tại: \url{https://github.com/NhHung07/N_Queens.git}.
 
 % -----------------------------------------------------------------------------
-% TÀI LIỆU THAM KHẢO (BIBLIOGRAPHY)
-% -----------------------------------------------------------------------------
-\begin{thebibliography}{99}
-\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
-
-\bibitem{bezzel1848}
-M.~Bezzel, Schachfreund, Berliner Schachzeitung 3 (1848) 363.
-
-\bibitem{nauck1850}
-F.~Nauck, Briefwechsel mit allen f{\"u}r alle, Illustrirte Zeitung 15 (377) (1850) 182.
-
-\bibitem{letavec2002nqueens}
-C.~Letavec, J.~Ruggiero, The n-queens problem, INFORMS Transactions on Education 2~(3) (2002) 101--103.
-
-\bibitem{rivin1994nqueens}
-I.~Rivin, I.~Vardi, P.~Zimmermann, The n-queens problem, The American Mathematical Monthly 101~(7) (1994) 629--639.
-
-\bibitem{clarke1996formal}
-E.~M. Clarke, J.~M. Wing, Formal methods: State of the art and future directions, ACM Computing Surveys 28~(4) (1996) 626--643.
-
-\bibitem{barber2003introduction}
-F.~Barber, M.~A. Salido, Introduction to constraint programming, Inteligencia Artificial, Revista Iberoamericana de Inteligencia Artificial 20 (2003) 13--30.
-
-\bibitem{cook1971complexity}
-S.~A. Cook, The complexity of theorem-proving procedures, in: Proceedings of the Third Annual ACM Symposium on Theory of Computing (STOC'71), ACM, 1971, pp. 151--158.
-
-\bibitem{marques2008practical}
-J.~Marques-Silva, Practical applications of boolean satisfiability, in: 2008 9th International Workshop on Discrete Event Systems, IEEE, 2008, pp. 74--80.
-
-\bibitem{biere2009handbook}
-A.~Biere, M.~Heule, H.~van Maaren, T.~Walsh (Eds.), Handbook of Satisfiability, Vol. 185, IOS Press, Amsterdam, 2009.
-
-\bibitem{sosic1994polynomial}
-R.~Sosic, J.~Gu, Efficient local search with conflict minimization: A polynomial-time algorithm for the n-queens problem, IEEE Transactions on Knowledge and Data Engineering 6~(5) (1994) 661--668.
-
-\bibitem{erbas1992queens}
-C.~Erbas, M.~M. Tanik, Generating solutions to the n-queens problem using 2-circulant matrices, Computers \& Mathematics with Applications 24~(11) (1992) 89--97.
-
-\bibitem{hoffman2013traveling}
-K.~L. Hoffman, M.~Padberg, G.~Rinaldi, Traveling salesman problem, Encyclopedia of Operations Research and Management Science 1 (2013) 1573--1578.
-
-\bibitem{golomb1965backtrack}
-S.~W. Golomb, L.~D. Baumert, Backtrack programming, Journal of the ACM 12~(4) (1965) 516--524.
-
-\bibitem{bitner1975backtrack}
-J.~R. Bitner, E.~M. Reingold, Backtrack programming techniques, Communications of the ACM 18~(11) (1975) 651--656.
-
-\bibitem{simon2020reasoning}
-L.~Simon, Reasoning with propositional logic: From sat solvers to knowledge compilation, A Guided Tour of Artificial Intelligence Research: Volume II (2020) 115--152.
-
-\bibitem{moskewicz2001chaff}
-M.~W. Moskewicz, C.~F. Madigan, Y.~Zhao, L.~Zhang, S.~Malik, Chaff: Accelerating engineering SAT runtimes, in: Proceedings of the 38th Design Automation Conference (DAC'01), ACM, 2001, pp. 530--535.
-
-\bibitem{audemard2009predicting}
-G.~Audemard, L.~Simon, Predicting learnt clauses quality in modern SAT solvers, in: Proceedings of the 21st International Joint Conference on Artificial Intelligence (IJCAI'09), 2009, pp. 399--404.
-
-\bibitem{biere2010lingeling}
-A.~Biere, Lingeling, plingeling, picosat and precosat at sat race 2010, FMV Report Series Technical Report 10/1, Johannes Kepler University, 2010.
-
-\bibitem{sinz2005towards}
-C.~Sinz, Towards an optimal CNF encoding of boolean cardinality constraints, in: Principles and Practice of Constraint Programming (CP 2005), Vol. 3709 of LNCS, Springer, 2005, pp. 827--831.
-
-\bibitem{klieber2007commander}
-W.~Klieber, G.~Kwon, Efficient CNF encoding for selecting at most one item from a group, in: Proceedings of the International Workshop on Constraints in Formal Verification (CFV'07), 2007, pp. 1--9.
-
-\bibitem{chen2010new}
-J.~Chen, A new SAT encoding of the at-most-one constraint, in: Proceedings of the 10th International Conference on Formal Methods in Computer-Aided Design (FMCAD'10), 2010, pp. 268--275.
-
-\bibitem{frisch2005atmost}
-A.~M. Frisch, P.~A. Giannaros, SAT encodings of the at-most-k constraint, in: Proceedings of the 3rd International Workshop on Modelling and Reformulating CSPs, 2005, pp. 45--56.
-
-\bibitem{regin1994filtering}
-J.-C. R{\'e}gin, A filtering algorithm for constraints of difference in CSPs, in: Proceedings of the 12th National Conference on Artificial Intelligence (AAAI'94), AAAI Press, 1994, pp. 362--367.
-
-\end{thebibliography}
-
-% -----------------------------------------------------------------------------
-% PHỤ LỤC (APPENDIX)
+% PHẦN PHỤ LỤC (APPENDIX THEO MẪU ELSEVIER)
 % -----------------------------------------------------------------------------
 \appendix
-\chapter{Bảng số liệu chi tiết toàn diện của 5 Kỹ thuật SAT Encodings}
+\section{Bảng số liệu chi tiết toàn diện của 5 Kỹ thuật SAT Encodings}
 \label{app:detailed_data}
 
 Dưới đây là toàn bộ số liệu đo đạc thực nghiệm chi tiết của 5 kỹ thuật mã hóa At-Most-One (AMO) trên bộ giải PySAT Glucose4 qua 15 mốc kích thước bàn cờ ($N \in [4, 1000]$).
 
 \begingroup
-\singlespacing
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
 \begin{longtable}{r l r r r r r r c}
@@ -982,5 +802,81 @@ $N$ & \textbf{Kỹ thuật} & \textbf{\shortstack{Tổng\\biến}} & \textbf{\sh
  & 2-Product & 1,529,020 & 529,020 & 8,922,032 & 1.757805 & - & - & \texttt{TIMEOUT} \\
 \end{longtable}
 \endgroup
+
+% -----------------------------------------------------------------------------
+% TÀI LIỆU THAM KHẢO (REFERENCES)
+% -----------------------------------------------------------------------------
+\begin{thebibliography}{99}
+
+\bibitem{bezzel1848}
+M.~Bezzel, Schachfreund, Berliner Schachzeitung 3 (1848) 363.
+
+\bibitem{nauck1850}
+F.~Nauck, Briefwechsel mit allen f{\"u}r alle, Illustrirte Zeitung 15 (377) (1850) 182.
+
+\bibitem{letavec2002nqueens}
+C.~Letavec, J.~Ruggiero, The n-queens problem, INFORMS Transactions on Education 2~(3) (2002) 101--103.
+
+\bibitem{rivin1994nqueens}
+I.~Rivin, I.~Vardi, P.~Zimmermann, The n-queens problem, The American Mathematical Monthly 101~(7) (1994) 629--639.
+
+\bibitem{clarke1996formal}
+E.~M. Clarke, J.~M. Wing, Formal methods: State of the art and future directions, ACM Computing Surveys 28~(4) (1996) 626--643.
+
+\bibitem{barber2003introduction}
+F.~Barber, M.~A. Salido, Introduction to constraint programming, Inteligencia Artificial, Revista Iberoamericana de Inteligencia Artificial 20 (2003) 13--30.
+
+\bibitem{cook1971complexity}
+S.~A. Cook, The complexity of theorem-proving procedures, in: Proceedings of the Third Annual ACM Symposium on Theory of Computing (STOC'71), ACM, 1971, pp. 151--158.
+
+\bibitem{marques2008practical}
+J.~Marques-Silva, Practical applications of boolean satisfiability, in: 2008 9th International Workshop on Discrete Event Systems, IEEE, 2008, pp. 74--80.
+
+\bibitem{biere2009handbook}
+A.~Biere, M.~Heule, H.~van Maaren, T.~Walsh (Eds.), Handbook of Satisfiability, Vol. 185, IOS Press, Amsterdam, 2009.
+
+\bibitem{sosic1994polynomial}
+R.~Sosic, J.~Gu, Efficient local search with conflict minimization: A polynomial-time algorithm for the n-queens problem, IEEE Transactions on Knowledge and Data Engineering 6~(5) (1994) 661--668.
+
+\bibitem{erbas1992queens}
+C.~Erbas, M.~M. Tanik, Generating solutions to the n-queens problem using 2-circulant matrices, Computers \& Mathematics with Applications 24~(11) (1992) 89--97.
+
+\bibitem{hoffman2013traveling}
+K.~L. Hoffman, M.~Padberg, G.~Rinaldi, Traveling salesman problem, Encyclopedia of Operations Research and Management Science 1 (2013) 1573--1578.
+
+\bibitem{golomb1965backtrack}
+S.~W. Golomb, L.~D. Baumert, Backtrack programming, Journal of the ACM 12~(4) (1965) 516--524.
+
+\bibitem{bitner1975backtrack}
+J.~R. Bitner, E.~M. Reingold, Backtrack programming techniques, Communications of the ACM 18~(11) (1975) 651--656.
+
+\bibitem{simon2020reasoning}
+L.~Simon, Reasoning with propositional logic: From sat solvers to knowledge compilation, A Guided Tour of Artificial Intelligence Research: Volume II (2020) 115--152.
+
+\bibitem{moskewicz2001chaff}
+M.~W. Moskewicz, C.~F. Madigan, Y.~Zhao, L.~Zhang, S.~Malik, Chaff: Accelerating engineering SAT runtimes, in: Proceedings of the 38th Design Automation Conference (DAC'01), ACM, 2001, pp. 530--535.
+
+\bibitem{audemard2009predicting}
+G.~Audemard, L.~Simon, Predicting learnt clauses quality in modern SAT solvers, in: Proceedings of the 21st International Joint Conference on Artificial Intelligence (IJCAI'09), 2009, pp. 399--404.
+
+\bibitem{biere2010lingeling}
+A.~Biere, Lingeling, plingeling, picosat and precosat at sat race 2010, FMV Report Series Technical Report 10/1, Johannes Kepler University, 2010.
+
+\bibitem{sinz2005towards}
+C.~Sinz, Towards an optimal CNF encoding of boolean cardinality constraints, in: Principles and Practice of Constraint Programming (CP 2005), Vol. 3709 of LNCS, Springer, 2005, pp. 827--831.
+
+\bibitem{klieber2007commander}
+W.~Klieber, G.~Kwon, Efficient CNF encoding for selecting at most one item from a group, in: Proceedings of the International Workshop on Constraints in Formal Verification (CFV'07), 2007, pp. 1--9.
+
+\bibitem{chen2010new}
+J.~Chen, A new SAT encoding of the at-most-one constraint, in: Proceedings of the 10th International Conference on Formal Methods in Computer-Aided Design (FMCAD'10), 2010, pp. 268--275.
+
+\bibitem{frisch2005atmost}
+A.~M. Frisch, P.~A. Giannaros, SAT encodings of the at-most-k constraint, in: Proceedings of the 3rd International Workshop on Modelling and Reformulating CSPs, 2005, pp. 45--56.
+
+\bibitem{regin1994filtering}
+J.-C. R{\'e}gin, A filtering algorithm for constraints of difference in CSPs, in: Proceedings of the 12th National Conference on Artificial Intelligence (AAAI'94), AAAI Press, 1994, pp. 362--367.
+
+\end{thebibliography}
 
 \end{document}
