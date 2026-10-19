@@ -18,8 +18,19 @@ venv/
 # Tool Config
 .antigravity/
 
-# Assignment PDF Documents
-Assignment 1 - requirements.pdf
-sat.pdf
-Mau xay dung bao cao BTL so 1 và BTL so 2.pdf
-An optimized SAT approach solving N-Queens problem.pdf
+# LaTeX Build Artifacts
+*.aux
+*.out
+*.toc
+*.lot
+*.lof
+*.loa
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Assignment & Reference PDF Documents
+report/Assignment 1 - requirements.pdf
+report/sat.pdf
+report/Mau xay dung bao cao BTL so 1 và BTL so 2.pdf
+report/An optimized SAT approach solving N-Queens problem.pdf

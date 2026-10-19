@@ -42,6 +42,10 @@ N_Queens_2/
 │   ├── cplex_cp.py                # Constraint Programming với IBM CPLEX CP Optimizer
 │   ├── gurobi.py                  # 0-1 MIP với Gurobi Optimizer
 │   └── cplex_mip.py               # 0-1 MIP với IBM CPLEX MIP
+├── report/                        # Báo cáo học thuật Bài tập lớn (LaTeX & PDF)
+│   ├── figures/                   # Sơ đồ và hình vẽ phục vụ báo cáo
+│   ├── report.tex                 # Mã nguồn LaTeX
+│   └── report.pdf                 # Báo cáo hoàn chỉnh PDF
 └── results/                       # Thực nghiệm, Dữ liệu và Trực quan hóa
     ├── benchmark/                 # Kịch bản tự động hóa đo đạc thực nghiệm
     │   ├── encoding.py            # Benchmark so sánh 5 phương pháp SAT Encoding
